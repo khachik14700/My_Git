@@ -1,1 +1,2 @@
 CLI - Command Line Interface
+INFRA - Infrastructure
