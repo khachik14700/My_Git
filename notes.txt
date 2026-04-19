@@ -1,18 +1,2 @@
 CLI - Command Line Interface
 INFRA - Infrastructure
-
-g++ -std=c++17 \
-main.cpp \
-cli/CommandParser.cpp \
-core/Repository.cpp \
-core/RepositoryPaths.cpp \
-core/RepositoryConfig.cpp \
-core/ObjectStore.cpp \
-infra/FileSystemUtils.cpp \
-infra/Hash.cpp \
-infra/Compression.cpp \
-objects/Blob.cpp \
-objects/ObjectHeader.cpp \
-objects/ObjectType.cpp \
--o mygit \
--lssl -lcrypto -lz
