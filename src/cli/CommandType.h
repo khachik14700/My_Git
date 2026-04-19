@@ -3,5 +3,6 @@
 enum class CommandType
 {
     Init,
+    HashObject,
     Unknown
 };

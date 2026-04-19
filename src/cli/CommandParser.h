@@ -6,6 +6,7 @@ struct ParsedCommand
 {
     CommandType command_type;
     std::string path;
+    bool write;
     bool valid;
     std::string error_msg;
 };
