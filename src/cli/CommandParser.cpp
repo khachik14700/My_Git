@@ -7,6 +7,7 @@ ParsedCommand CommandParser::parse(int argc, char **argv)
     result.path = "";
     result.valid = false;
     result.write = false;
+    result.cat_file_mode = CatFileMode::None;
     result.error_msg = "";
     if (argc < 2) //not write command (mygit)
     {
@@ -63,7 +64,44 @@ ParsedCommand CommandParser::parse(int argc, char **argv)
             result.valid = true;
             return result;
         }
+    }
+    else if (command == "cat-file")
+    {
+        result.command_type = CommandType::CatFile;
+        if (argc < 4)
+        {
+            result.valid = false;
+            result.error_msg = "cat-file requires a mode and object id";
+            return result;
+        }
+        std::string mode = argv[2];
+        std::string object_id = argv[3];
+        if (mode == "-t")
+        {
+            result.cat_file_mode = CatFileMode::Type;
+        }
+        else if (mode == "-s")
+        {
+            result.cat_file_mode = CatFileMode::Size;
+        }
+        else if (mode == "-e")
+        {
+            result.cat_file_mode = CatFileMode::Exists;
+        }
+        else if (mode == "-p")
+        {
+            result.cat_file_mode = CatFileMode::PrettyPrint;
+        }
+        else
+        {
+            result.valid = false;
+            result.error_msg = "Unknown cat-file mode";
+            return result;
+        }
 
+        result.path = object_id;
+        result.valid = true;
+        return result;
     }
     else
     {

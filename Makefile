@@ -16,7 +16,8 @@ SRCS = \
     src/infra/Compression.cpp \
     src/objects/Blob.cpp \
     src/objects/ObjectHeader.cpp \
-    src/objects/ObjectType.cpp
+    src/objects/ObjectType.cpp \
+    src/objects/ParsedObject.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 

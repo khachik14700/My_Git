@@ -5,6 +5,7 @@
 #include "infra/FileSystemUtils.h"
 #include "core/ObjectStore.h"
 #include "core/RepositoryPaths.h"
+#include "objects/ParsedObject.h"
 #include <iostream>
 #include <filesystem>
 
@@ -92,6 +93,67 @@ int handleHashObject(const ParsedCommand& parsed, const std::filesystem::path& c
     }
 }
 
+int handleCatFile(const ParsedCommand& parsed, const std::filesystem::path& current_path)
+{
+    if (!Repository::isValid(current_path))
+    {
+        std::cerr << "Current directory is not a valid repository" << std::endl;
+        return 1;
+    }
+    RepositoryPaths repository_paths(current_path);
+    std::filesystem::path objects_dir = repository_paths.objectsDir();
+    ObjectStore object_store(objects_dir);
+    std::string raw_object = object_store.readObject(parsed.path);
+    if (raw_object.empty())
+    {
+        std::cerr << "Failed to read object" << std::endl;
+        return 1;
+    }
+
+    try
+    {
+        ParsedObject parsed_object = ParsedObject::parse(raw_object);
+        
+        if (parsed.cat_file_mode == CatFileMode::Type)
+        {
+            std::cout << parsed_object.type() << std::endl;
+            return 0;
+        }
+        else if (parsed.cat_file_mode == CatFileMode::Size)
+        {
+            std::cout << parsed_object.size() << std::endl;
+            return 0;
+        }
+        else if (parsed.cat_file_mode == CatFileMode::Exists)
+        {
+            return 0;
+        }
+        else if (parsed.cat_file_mode == CatFileMode::PrettyPrint)
+        {
+            if (parsed_object.type() == "blob")
+            {
+                std::cout << parsed_object.payload() << std::endl;
+                return 0;
+            }
+            else
+            {
+                std::cerr << "Pretty-print is currently supported only for blob objects" << std::endl;
+                return 1;
+            }
+        }
+        else
+        {
+            std::cerr << "Unsupported cat-file mode" << std::endl;
+            return 1;
+        }
+    }
+    catch(const std::runtime_error& e)
+    {
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
+}
+
 int main(int argc, char **argv)
 {
     ParsedCommand parsed = CommandParser::parse(argc, argv);
@@ -108,6 +170,10 @@ int main(int argc, char **argv)
     else if (parsed.command_type == CommandType::HashObject)
     {
         return handleHashObject(parsed, current_path);
+    }
+    else if (parsed.command_type == CommandType::CatFile)
+    {
+        return handleCatFile(parsed, current_path);
     }
 
     return 0;
