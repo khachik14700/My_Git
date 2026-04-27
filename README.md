@@ -75,40 +75,36 @@ This mirrors exactly how Git stores objects internally.
 ```
 .
 ├── CLI/
-│   └── src/
-│       ├── CommandParser.h
-│       ├── CommandParser.cpp
-│       ├── CommandType.h
-│       ├── CatFileMode.h
-│       └── ParsedCommand.h
+│   ├── CommandParser.h
+│   ├── CommandParser.cpp
+│   ├── CommandType.h
+│   ├── CatFileMode.h
+│   └── ParsedCommand.h
 ├── CORE/
-│   └── src/
-│       ├── Repository.h
-│       ├── Repository.cpp
-│       ├── RepositoryPaths.h
-│       ├── RepositoryPaths.cpp
-│       ├── RepositoryConfig.h
-│       ├── RepositoryConfig.cpp
-│       ├── ObjectStore.h
-│       └── ObjectStore.cpp
+│   ├── Repository.h
+│   ├── Repository.cpp
+│   ├── RepositoryPaths.h
+│   ├── RepositoryPaths.cpp
+│   ├── RepositoryConfig.h
+│   ├── RepositoryConfig.cpp
+│   ├── ObjectStore.h
+│   └── ObjectStore.cpp
 ├── OBJECTS/
-│   └── src/
-│       ├── Blob.h
-│       ├── Blob.cpp
-│       ├── ObjectHeader.h
-│       ├── ObjectHeader.cpp
-│       ├── ObjectType.h
-│       ├── ObjectTypeUtils.h
-│       ├── ParsedObject.h
-│       └── ParsedObject.cpp
+│   ├── Blob.h
+│   ├── Blob.cpp
+│   ├── ObjectHeader.h
+│   ├── ObjectHeader.cpp
+│   ├── ObjectType.h
+│   ├── ObjectTypeUtils.h
+│   ├── ParsedObject.h
+│   └── ParsedObject.cpp
 ├── INFRA/
-│   └── src/
-│       ├── Hash.h
-│       ├── Hash.cpp
-│       ├── Compression.h
-│       ├── Compression.cpp
-│       ├── FileSystemUtils.h
-│       └── FileSystemUtils.cpp
+│   ├── Hash.h
+│   ├── Hash.cpp
+│   ├── Compression.h
+│   ├── Compression.cpp
+│   ├── FileSystemUtils.h
+│   └── FileSystemUtils.cpp
 ├── main.cpp
 └── Makefile
 ```
