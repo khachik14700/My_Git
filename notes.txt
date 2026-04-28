@@ -1,23 +1,25 @@
 CLI - Command Line Interface
 INFRA - Infrastructure
 
-g++ -std=c++17 \
+g++ -std=c++17 -Wall -Wextra -O2 \
     src/main.cpp \
     src/cli/CommandParser.cpp \
+    src/core/Repository.cpp \
     src/core/RepositoryPaths.cpp \
     src/core/RepositoryConfig.cpp \
-    src/core/Repository.cpp \
     src/core/ObjectStore.cpp \
     src/infra/FileSystemUtils.cpp \
     src/infra/Hash.cpp \
     src/infra/Compression.cpp \
-    src/objects/ObjectType.cpp \
-    src/objects/ObjectHeader.cpp \
     src/objects/Blob.cpp \
+    src/objects/ObjectHeader.cpp \
+    src/objects/ObjectType.cpp \
     src/objects/ParsedObject.cpp \
-    -I$HOME/openssl/include \
-    -L$HOME/openssl/lib64 \
-    -lssl -lcrypto \
-    -lz \
-    -Wl,-rpath,$HOME/openssl/lib64 \
+    src/objects/TreeEntry.cpp \
+    src/objects/Tree.cpp \
+    src/ops/WriteTree.cpp \
+    -I/home/kkhachat/openssl/include \
+    -L/home/kkhachat/openssl/lib64 \
+    -lssl -lcrypto -lz \
+    -Wl,-rpath,/home/kkhachat/openssl/lib64 \
     -o mygit

@@ -25,4 +25,11 @@ class CommandParser
 {
     public:
         static ParsedCommand parse(int argc, char **argv);
+    
+    private:
+        static ParsedCommand parseInit(int argc, char **argv);
+        static ParsedCommand parseHashObject(int argc, char **argv);
+        static ParsedCommand parseCatFile(int argc, char **argv);
+        static ParsedCommand parseWriteTree(int argc, char **argv);
+        static ParsedCommand makeError(const std::string& msg);
 };

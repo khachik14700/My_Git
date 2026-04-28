@@ -157,6 +157,7 @@ int handleCatFile(const ParsedCommand& parsed, const std::filesystem::path& curr
 
 int handleWriteTree(const ParsedCommand& parsed, const std::filesystem::path& current_path)
 {
+    (void)parsed;
     if (!Repository::isValid(current_path))
     {
         std::cerr << "Current directory is not a valid repository" << std::endl;

@@ -31,7 +31,7 @@ std::string Hash::hexToBytes(const std::string& hex)
         throw std::runtime_error("Invalid hex string length");
     }
     std::string result = "";
-    for (int i = 0; i < hex.size(); i += 2)
+    for (size_t i = 0; i < hex.size(); i += 2)
     {
         std::string two_chars = hex.substr(i, 2);
         unsigned char byte = static_cast<unsigned char>(std::stoul(two_chars, nullptr, 16));
