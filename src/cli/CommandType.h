@@ -5,5 +5,6 @@ enum class CommandType
     Init,
     HashObject,
     CatFile,
+    WriteTree,
     Unknown
 };

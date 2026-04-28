@@ -6,6 +6,7 @@
 #include "core/ObjectStore.h"
 #include "core/RepositoryPaths.h"
 #include "objects/ParsedObject.h"
+#include "ops/WriteTree.h"
 #include <iostream>
 #include <filesystem>
 
@@ -154,6 +155,30 @@ int handleCatFile(const ParsedCommand& parsed, const std::filesystem::path& curr
     }
 }
 
+int handleWriteTree(const ParsedCommand& parsed, const std::filesystem::path& current_path)
+{
+    if (!Repository::isValid(current_path))
+    {
+        std::cerr << "Current directory is not a valid repository" << std::endl;
+        return 1;
+    }
+    RepositoryPaths repository_paths(current_path);
+    std::filesystem::path objects_dir = repository_paths.objectsDir();
+    ObjectStore store(objects_dir);
+    try
+    {
+        std::string tree_id = buildTree(current_path, store);
+        std::cout << tree_id << std::endl;
+    }
+    catch (const std::runtime_error& er)
+    {
+        std::cerr << er.what() << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     ParsedCommand parsed = CommandParser::parse(argc, argv);
@@ -174,6 +199,10 @@ int main(int argc, char **argv)
     else if (parsed.command_type == CommandType::CatFile)
     {
         return handleCatFile(parsed, current_path);
+    }
+    else if (parsed.command_type == CommandType::WriteTree)
+    {
+        return handleWriteTree(parsed, current_path);
     }
 
     return 0;

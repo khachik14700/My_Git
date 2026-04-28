@@ -1,0 +1,21 @@
+\doxysection{File\+System\+Utils.\+h}
+\hypertarget{FileSystemUtils_8h_source}{}\label{FileSystemUtils_8h_source}\index{src/infra/FileSystemUtils.h@{src/infra/FileSystemUtils.h}}
+\mbox{\hyperlink{FileSystemUtils_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ <filesystem>}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{keyword}{class\ }\mbox{\hyperlink{classFileSystemUtils}{FileSystemUtils}}}
+\DoxyCodeLine{00006\ \{}
+\DoxyCodeLine{00007\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00008\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classFileSystemUtils_a860cc8d2cef5b00bfc650bab835e507c}{exists}}(\textcolor{keyword}{const}\ std::filesystem::path\&\ path);}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classFileSystemUtils_ac15012f80642cf14848bddf854a03080}{isDirectory}}(\textcolor{keyword}{const}\ std::filesystem::path\&\ path);}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classFileSystemUtils_abd2238e2e8b6abc0b4d90bad6beb27f2}{isRegularFile}}(\textcolor{keyword}{const}\ std::filesystem::path\&\ path);}
+\DoxyCodeLine{00011\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classFileSystemUtils_a035f681fdb21a8f4e47206877a8726fd}{createDirectories}}(\textcolor{keyword}{const}\ std::filesystem::path\&\ path);}
+\DoxyCodeLine{00012\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classFileSystemUtils_a55f5fea55bfb731d6fd1b8b69e99df10}{writeTextFile}}(\textcolor{keyword}{const}\ std::filesystem::path\&\ path,\ \textcolor{keyword}{const}\ std::string\&\ content);}
+\DoxyCodeLine{00013\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classFileSystemUtils_a5ce9068172db25c5c2028fc0f05b5cc4}{writeBinaryFile}}(\textcolor{keyword}{const}\ std::filesystem::path\&\ path,\ \textcolor{keyword}{const}\ std::string\&\ content);}
+\DoxyCodeLine{00014\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{classFileSystemUtils_ab81aeb3f298f8f4b8e5cee8f2b232dc9}{readBinaryFile}}(\textcolor{keyword}{const}\ std::filesystem::path\&\ path,\ std::string\&\ content);}
+\DoxyCodeLine{00015\ \};}
+
+\end{DoxyCode}

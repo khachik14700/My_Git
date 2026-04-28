@@ -18,7 +18,9 @@ SRCS = \
     src/objects/ObjectHeader.cpp \
     src/objects/ObjectType.cpp \
     src/objects/ParsedObject.cpp \
-    src/objects/TreeEntry.cpp
+    src/objects/TreeEntry.cpp \
+    src/objects/Tree.cpp \
+    src/ops/WriteTree.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 

@@ -103,6 +103,12 @@ ParsedCommand CommandParser::parse(int argc, char **argv)
         result.valid = true;
         return result;
     }
+    else if (command == "write-tree")
+    {
+        result.command_type = CommandType::WriteTree;
+        result.valid = true;
+        return result;
+    }
     else
     {
         result.error_msg = "Unknown command";

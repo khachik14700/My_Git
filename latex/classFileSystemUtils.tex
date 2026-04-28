@@ -1,0 +1,84 @@
+\doxysection{File\+System\+Utils Class Reference}
+\hypertarget{classFileSystemUtils}{}\label{classFileSystemUtils}\index{FileSystemUtils@{FileSystemUtils}}
+
+
+{\ttfamily \#include $<$File\+System\+Utils.\+h$>$}
+
+
+
+Collaboration diagram for File\+System\+Utils\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=180pt]{classFileSystemUtils__coll__graph}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static bool \mbox{\hyperlink{classFileSystemUtils_a860cc8d2cef5b00bfc650bab835e507c}{exists}} (const std\+::filesystem\+::path \&path)
+\item 
+static bool \mbox{\hyperlink{classFileSystemUtils_ac15012f80642cf14848bddf854a03080}{is\+Directory}} (const std\+::filesystem\+::path \&path)
+\item 
+static bool \mbox{\hyperlink{classFileSystemUtils_abd2238e2e8b6abc0b4d90bad6beb27f2}{is\+Regular\+File}} (const std\+::filesystem\+::path \&path)
+\item 
+static bool \mbox{\hyperlink{classFileSystemUtils_a035f681fdb21a8f4e47206877a8726fd}{create\+Directories}} (const std\+::filesystem\+::path \&path)
+\item 
+static bool \mbox{\hyperlink{classFileSystemUtils_a55f5fea55bfb731d6fd1b8b69e99df10}{write\+Text\+File}} (const std\+::filesystem\+::path \&path, const std\+::string \&content)
+\item 
+static bool \mbox{\hyperlink{classFileSystemUtils_a5ce9068172db25c5c2028fc0f05b5cc4}{write\+Binary\+File}} (const std\+::filesystem\+::path \&path, const std\+::string \&content)
+\item 
+static bool \mbox{\hyperlink{classFileSystemUtils_ab81aeb3f298f8f4b8e5cee8f2b232dc9}{read\+Binary\+File}} (const std\+::filesystem\+::path \&path, std\+::string \&content)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{classFileSystemUtils_a035f681fdb21a8f4e47206877a8726fd}\label{classFileSystemUtils_a035f681fdb21a8f4e47206877a8726fd} 
+\index{FileSystemUtils@{FileSystemUtils}!createDirectories@{createDirectories}}
+\index{createDirectories@{createDirectories}!FileSystemUtils@{FileSystemUtils}}
+\doxysubsubsection{\texorpdfstring{createDirectories()}{createDirectories()}}
+{\footnotesize\ttfamily bool File\+System\+Utils\+::create\+Directories (\begin{DoxyParamCaption}\item[{const std\+::filesystem\+::path \&}]{path }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\Hypertarget{classFileSystemUtils_a860cc8d2cef5b00bfc650bab835e507c}\label{classFileSystemUtils_a860cc8d2cef5b00bfc650bab835e507c} 
+\index{FileSystemUtils@{FileSystemUtils}!exists@{exists}}
+\index{exists@{exists}!FileSystemUtils@{FileSystemUtils}}
+\doxysubsubsection{\texorpdfstring{exists()}{exists()}}
+{\footnotesize\ttfamily bool File\+System\+Utils\+::exists (\begin{DoxyParamCaption}\item[{const std\+::filesystem\+::path \&}]{path }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\Hypertarget{classFileSystemUtils_ac15012f80642cf14848bddf854a03080}\label{classFileSystemUtils_ac15012f80642cf14848bddf854a03080} 
+\index{FileSystemUtils@{FileSystemUtils}!isDirectory@{isDirectory}}
+\index{isDirectory@{isDirectory}!FileSystemUtils@{FileSystemUtils}}
+\doxysubsubsection{\texorpdfstring{isDirectory()}{isDirectory()}}
+{\footnotesize\ttfamily bool File\+System\+Utils\+::is\+Directory (\begin{DoxyParamCaption}\item[{const std\+::filesystem\+::path \&}]{path }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\Hypertarget{classFileSystemUtils_abd2238e2e8b6abc0b4d90bad6beb27f2}\label{classFileSystemUtils_abd2238e2e8b6abc0b4d90bad6beb27f2} 
+\index{FileSystemUtils@{FileSystemUtils}!isRegularFile@{isRegularFile}}
+\index{isRegularFile@{isRegularFile}!FileSystemUtils@{FileSystemUtils}}
+\doxysubsubsection{\texorpdfstring{isRegularFile()}{isRegularFile()}}
+{\footnotesize\ttfamily bool File\+System\+Utils\+::is\+Regular\+File (\begin{DoxyParamCaption}\item[{const std\+::filesystem\+::path \&}]{path }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\Hypertarget{classFileSystemUtils_ab81aeb3f298f8f4b8e5cee8f2b232dc9}\label{classFileSystemUtils_ab81aeb3f298f8f4b8e5cee8f2b232dc9} 
+\index{FileSystemUtils@{FileSystemUtils}!readBinaryFile@{readBinaryFile}}
+\index{readBinaryFile@{readBinaryFile}!FileSystemUtils@{FileSystemUtils}}
+\doxysubsubsection{\texorpdfstring{readBinaryFile()}{readBinaryFile()}}
+{\footnotesize\ttfamily bool File\+System\+Utils\+::read\+Binary\+File (\begin{DoxyParamCaption}\item[{const std\+::filesystem\+::path \&}]{path,  }\item[{std\+::string \&}]{content }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\Hypertarget{classFileSystemUtils_a5ce9068172db25c5c2028fc0f05b5cc4}\label{classFileSystemUtils_a5ce9068172db25c5c2028fc0f05b5cc4} 
+\index{FileSystemUtils@{FileSystemUtils}!writeBinaryFile@{writeBinaryFile}}
+\index{writeBinaryFile@{writeBinaryFile}!FileSystemUtils@{FileSystemUtils}}
+\doxysubsubsection{\texorpdfstring{writeBinaryFile()}{writeBinaryFile()}}
+{\footnotesize\ttfamily bool File\+System\+Utils\+::write\+Binary\+File (\begin{DoxyParamCaption}\item[{const std\+::filesystem\+::path \&}]{path,  }\item[{const std\+::string \&}]{content }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+\Hypertarget{classFileSystemUtils_a55f5fea55bfb731d6fd1b8b69e99df10}\label{classFileSystemUtils_a55f5fea55bfb731d6fd1b8b69e99df10} 
+\index{FileSystemUtils@{FileSystemUtils}!writeTextFile@{writeTextFile}}
+\index{writeTextFile@{writeTextFile}!FileSystemUtils@{FileSystemUtils}}
+\doxysubsubsection{\texorpdfstring{writeTextFile()}{writeTextFile()}}
+{\footnotesize\ttfamily bool File\+System\+Utils\+::write\+Text\+File (\begin{DoxyParamCaption}\item[{const std\+::filesystem\+::path \&}]{path,  }\item[{const std\+::string \&}]{content }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/infra/\mbox{\hyperlink{FileSystemUtils_8h}{File\+System\+Utils.\+h}}\item 
+src/infra/\mbox{\hyperlink{FileSystemUtils_8cpp}{File\+System\+Utils.\+cpp}}\end{DoxyCompactItemize}
