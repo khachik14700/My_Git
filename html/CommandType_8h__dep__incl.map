@@ -1,9 +1,0 @@
-<map id="src/cli/CommandType.h" name="src/cli/CommandType.h">
-<area shape="rect" id="Node000001" title=" " alt="" coords="98,5,258,31"/>
-<area shape="rect" id="Node000002" href="$CommandParser_8h.html" title=" " alt="" coords="93,79,263,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,44,181,79,175,79,175,44"/>
-<area shape="rect" id="Node000003" href="$CommandParser_8cpp.html" title=" " alt="" coords="5,152,188,177"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="156,115,112,154,108,150,153,111"/>
-<area shape="rect" id="Node000004" href="$main_8cpp.html" title=" " alt="" coords="212,152,309,177"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="203,111,249,150,245,154,200,115"/>
-</map>

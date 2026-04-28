@@ -1,9 +1,0 @@
-<map id="src/objects/ParsedObject.cpp" name="src/objects/ParsedObject.cpp">
-<area shape="rect" id="Node000001" title=" " alt="" coords="24,5,219,31"/>
-<area shape="rect" id="Node000002" href="$ParsedObject_8h.html" title=" " alt="" coords="5,79,117,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="113,33,82,70,78,66,109,29"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="142,79,221,104"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="133,29,165,66,161,70,129,33"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="34,152,89,177"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="64,104,64,138,59,138,59,104"/>
-</map>
