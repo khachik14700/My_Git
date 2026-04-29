@@ -39,3 +39,18 @@ std::string Hash::hexToBytes(const std::string& hex)
     }
     return result;
 }
+
+std::string Hash::bytesToHex(const std::string& bytes)
+{
+    std::string hex = "0123456789abcdef";
+    std::string result = "";
+    for (char byte : bytes)
+    {
+        int number = static_cast<unsigned char>(byte);
+        unsigned char first = hex[number / 16];
+        unsigned char second = hex[number % 16];
+        result += first;
+        result += second;
+    }
+    return result;
+}

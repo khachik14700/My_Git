@@ -1,4 +1,6 @@
 #include "ParsedObject.h"
+#include "../infra/Hash.h"
+#include "Tree.h"
 #include <stdexcept>
 
 ParsedObject::ParsedObject(const std::string& type, std::size_t size, const std::string& payload)
@@ -55,4 +57,28 @@ ParsedObject ParsedObject::parse(const std::string& raw_object)
         throw std::runtime_error("Object payload size does not match header size");
     }
     return ParsedObject(object_type, expected_size, payload);
+}
+
+std::vector<TreeEntry> ParsedObject::parseTreePayload() const
+{
+    if (type_ != "tree")
+    {
+        throw std::runtime_error("Object is not a tree");
+    }
+    std::vector<TreeEntry> entries;
+    size_t pos = 0;
+    while (pos < payload_.size())
+    {
+        size_t space_pos = payload_.find(' ', pos);
+        std::string mode = payload_.substr(pos, space_pos - pos);
+        pos = space_pos + 1;
+        size_t null_pos = payload_.find('\0', pos);
+        std::string name = payload_.substr(pos, null_pos - pos);
+        pos = null_pos + 1;
+        std::string binary_hash = payload_.substr(pos, 32);
+        pos += 32;
+        std::string hex = Hash::bytesToHex(binary_hash);
+        entries.push_back(TreeEntry(mode, name, hex));
+    }
+    return entries;
 }

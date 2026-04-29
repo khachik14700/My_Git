@@ -1,5 +1,7 @@
 #pragma once
+#include "TreeEntry.h"
 #include <string>
+#include <vector>
 
 class ParsedObject
 {
@@ -14,4 +16,5 @@ class ParsedObject
         std::size_t size() const;
         const std::string& payload() const;
         static ParsedObject parse(const std::string& raw_object);
+        std::vector<TreeEntry> parseTreePayload() const;
 };

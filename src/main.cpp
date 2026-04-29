@@ -136,6 +136,17 @@ int handleCatFile(const ParsedCommand& parsed, const std::filesystem::path& curr
                 std::cout << parsed_object.payload() << std::endl;
                 return 0;
             }
+            else if (parsed_object.type() == "tree")
+            {
+                std::vector<TreeEntry> entries = parsed_object.parseTreePayload();
+                for (const auto& entry : entries)
+                {
+                    std::string display_mode = (entry.getMode() == "40000") ? "040000" : entry.getMode();
+                    std::string obj_type = (entry.getMode() == "40000") ? "tree" : "blob";
+                    std::cout << display_mode << " " << obj_type << " " << entry.getObjectId() << "    " << entry.getName() << std::endl;
+                }
+                return 0;
+            }
             else
             {
                 std::cerr << "Pretty-print is currently supported only for blob objects" << std::endl;
