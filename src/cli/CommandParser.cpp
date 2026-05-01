@@ -8,6 +8,8 @@ ParsedCommand CommandParser::makeError(const std::string& msg)
     result.write = false;
     result.cat_file_mode = CatFileMode::None;
     result.path = "";
+    result.config_key = "";
+    result.config_value = "";
     result.error_msg = msg;
     return result;
 }
@@ -21,6 +23,9 @@ ParsedCommand CommandParser::parseInit(int argc, char** argv)
     result.path = "";
     result.cat_file_mode = CatFileMode::None;
     result.error_msg = "";
+    result.config_key = "";
+    result.config_value = "";
+
     if (argc > 3)
     {
         return makeError("init: too many arguments");
@@ -42,6 +47,9 @@ ParsedCommand CommandParser::parseHashObject(int argc, char** argv)
     result.write = false;
     result.cat_file_mode = CatFileMode::None;
     result.error_msg = "";
+    result.config_key = "";
+    result.config_value = "";
+
 
     if (argc == 2)
     {
@@ -106,6 +114,9 @@ ParsedCommand CommandParser::parseCatFile(int argc, char** argv)
     result.write = false;
     result.cat_file_mode = CatFileMode::None;
     result.error_msg = "";
+    result.config_key = "";
+    result.config_value = "";
+
 
     std::string mode = std::string(argv[2]);
 
@@ -156,8 +167,51 @@ ParsedCommand CommandParser::parseWriteTree(int argc, char** argv)
     result.path = "";
     result.cat_file_mode = CatFileMode::None;
     result.error_msg = "";
+    result.config_key = "";
+    result.config_value = "";
 
     return result;
+}
+
+ParsedCommand CommandParser::parseConfig(int argc, char** argv)
+{
+    if (argc == 2)
+    {
+        return makeError("config: missing key");
+    }
+    if (argc > 4)
+    {
+        return makeError("config: too many arguments");
+    }
+
+    std::string key = argv[2];
+    if (key.find('.') == std::string::npos)
+    {
+        return makeError("config: invalid key format, expected <section>.<key>");
+    }
+
+    ParsedCommand result;
+    result.command_type = CommandType::Config;
+    result.valid = true;
+    result.write = false;
+    result.path = "";
+    result.cat_file_mode = CatFileMode::None;
+    result.error_msg = "";
+
+    if (argc == 3)
+    {
+        result.config_key = key;
+        result.config_value = "";
+        return result;
+    }
+    else if (argc == 4)
+    {
+        result.config_key = key;
+        result.config_value = argv[3];
+        return result;
+    }
+
+    return makeError("config: unexpected error");
 }
 
 
@@ -185,6 +239,10 @@ ParsedCommand CommandParser::parse(int argc, char **argv)
     else if (command == "write-tree")
     {
         return parseWriteTree(argc, argv);
+    }
+    else if (command == "config")
+    {
+        return parseConfig(argc, argv);
     }
     else
     {

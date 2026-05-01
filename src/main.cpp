@@ -7,8 +7,10 @@
 #include "core/RepositoryPaths.h"
 #include "objects/ParsedObject.h"
 #include "ops/WriteTree.h"
+#include "core/RepositoryConfig.h"
 #include <iostream>
 #include <filesystem>
+#include <set>
 
 int handleInit(const ParsedCommand& parsed, const std::filesystem::path& current_path)
 {
@@ -191,6 +193,58 @@ int handleWriteTree(const ParsedCommand& parsed, const std::filesystem::path& cu
     return 0;
 }
 
+int handleConfig(const ParsedCommand& parsed, const std::filesystem::path& current_path)
+{
+    if (!Repository::isValid(current_path))
+    {
+        std::cerr << "fatal: not a valid repository" << std::endl;
+        return 1;
+    }
+
+    RepositoryPaths repo_path(current_path);
+    std::filesystem::path config_path = repo_path.configFile();
+    RepositoryConfig config;
+
+    if (!config.load(config_path))
+    {
+        std::cerr << "fatal: failed to load config file" << std::endl;
+        return 1;
+    }
+
+    std::size_t dot =  parsed.config_key.find('.');
+    std::string section = parsed.config_key.substr(0, dot);
+    std::string key = parsed.config_key.substr(dot + 1);
+
+    static const std::set<std::string> allowed_sections = {"core", "user"};
+    if (allowed_sections.count(section) == 0)
+    {
+        std::cerr << "config: unknown section '" << section << "'" << std::endl;
+        return 1;
+    }
+
+    if (parsed.config_value.empty())
+    {
+        std::string value = config.get(section, key);
+        if (value.empty())
+        {
+            std::cerr << "config: key '" << parsed.config_key << "' not found" << std::endl;
+            return 1;
+        }
+        std::cout << value << std::endl;
+        return 0;
+    }
+    else
+    {
+        config.set(section, key, parsed.config_value);
+        if (!config.save(config_path))
+        {
+            std::cerr << "config: failed to save config file" << std::endl;
+            return 1;
+        }
+        return 0;
+    }
+}
+
 int main(int argc, char **argv)
 {
     ParsedCommand parsed = CommandParser::parse(argc, argv);
@@ -215,6 +269,10 @@ int main(int argc, char **argv)
     else if (parsed.command_type == CommandType::WriteTree)
     {
         return handleWriteTree(parsed, current_path);
+    }
+    else if (parsed.command_type == CommandType::Config)
+    {
+        return handleConfig(parsed, current_path);
     }
 
     return 0;

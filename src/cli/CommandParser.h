@@ -19,6 +19,8 @@ struct ParsedCommand
     bool valid;
     CatFileMode cat_file_mode;
     std::string error_msg;
+    std::string config_key;
+    std::string config_value;
 };
 
 class CommandParser
@@ -31,5 +33,6 @@ class CommandParser
         static ParsedCommand parseHashObject(int argc, char **argv);
         static ParsedCommand parseCatFile(int argc, char **argv);
         static ParsedCommand parseWriteTree(int argc, char **argv);
+        static ParsedCommand parseConfig(int argc, char** argv);
         static ParsedCommand makeError(const std::string& msg);
 };
