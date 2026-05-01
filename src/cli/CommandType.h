@@ -7,5 +7,6 @@ enum class CommandType
     CatFile,
     WriteTree,
     Config,
+    Add,
     Unknown
 };

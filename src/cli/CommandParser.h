@@ -34,5 +34,6 @@ class CommandParser
         static ParsedCommand parseCatFile(int argc, char **argv);
         static ParsedCommand parseWriteTree(int argc, char **argv);
         static ParsedCommand parseConfig(int argc, char** argv);
+        static ParsedCommand parseAdd(int argc, char** argv);
         static ParsedCommand makeError(const std::string& msg);
 };

@@ -15,4 +15,5 @@ class RepositoryPaths
         std::filesystem::path headsDir();
         std::filesystem::path headFile();
         std::filesystem::path configFile();
+        std::filesystem::path indexFile();
 };

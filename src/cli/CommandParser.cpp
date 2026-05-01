@@ -214,6 +214,30 @@ ParsedCommand CommandParser::parseConfig(int argc, char** argv)
     return makeError("config: unexpected error");
 }
 
+ParsedCommand CommandParser::parseAdd(int argc, char** argv)
+{
+    if (argc == 2)
+    {
+        return makeError("add: missing path");
+    }
+    if (argc > 3)
+    {
+        return makeError("add: too many arguments");
+    }
+    
+    ParsedCommand result;
+    result.command_type = CommandType::Add;
+    result.valid = true;
+    result.path = argv[2];
+    result.write = false;
+    result.cat_file_mode = CatFileMode::None;
+    result.config_key = "";
+    result.config_value = "";
+    result.error_msg = "";
+
+    return result;
+}
+
 
 ParsedCommand CommandParser::parse(int argc, char **argv)
 {
@@ -243,6 +267,10 @@ ParsedCommand CommandParser::parse(int argc, char **argv)
     else if (command == "config")
     {
         return parseConfig(argc, argv);
+    }
+    else if (command == "add")
+    {
+        return parseAdd(argc, argv);
     }
     else
     {

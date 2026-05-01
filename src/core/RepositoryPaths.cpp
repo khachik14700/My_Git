@@ -39,3 +39,8 @@ std::filesystem::path RepositoryPaths::configFile()
 {
     return gitDir()/"config";
 }
+
+std::filesystem::path RepositoryPaths::indexFile()
+{
+    return gitDir()/"index";
+}

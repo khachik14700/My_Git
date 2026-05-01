@@ -245,6 +245,11 @@ int handleConfig(const ParsedCommand& parsed, const std::filesystem::path& curre
     }
 }
 
+int handleAdd(const ParsedCommand& parsed, const std::filesystem::path& current_path)
+{
+    
+}
+
 int main(int argc, char **argv)
 {
     ParsedCommand parsed = CommandParser::parse(argc, argv);
@@ -273,6 +278,10 @@ int main(int argc, char **argv)
     else if (parsed.command_type == CommandType::Config)
     {
         return handleConfig(parsed, current_path);
+    }
+    else if (parsed.command_type == CommandType::Add)
+    {
+        return handleAdd(parsed, current_path);
     }
 
     return 0;
