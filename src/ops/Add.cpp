@@ -22,8 +22,8 @@ void addPath(const std::string& path, const std::filesystem::path& repo_root, Ob
         for (const auto& entry : std::filesystem::recursive_directory_iterator(repo_root))
         {
             std::filesystem::path entry_path = entry.path();
-            std::string name = entry_path.filename().string();
-            if (name == ".git")
+            std::filesystem::path git_dir = repo_root / ".git";
+            if (entry_path.string().find(git_dir.string()) == 0)
             {
                 continue;
             }

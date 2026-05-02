@@ -8,6 +8,7 @@
 #include "objects/ParsedObject.h"
 #include "ops/WriteTree.h"
 #include "core/RepositoryConfig.h"
+#include "ops/Add.h"
 #include <iostream>
 #include <filesystem>
 #include <set>
@@ -247,7 +248,40 @@ int handleConfig(const ParsedCommand& parsed, const std::filesystem::path& curre
 
 int handleAdd(const ParsedCommand& parsed, const std::filesystem::path& current_path)
 {
-    
+    if (!Repository::isValid(current_path))
+    {
+        std::cerr << "fatal: not a valid repository" << std::endl;
+        return 1;
+    }
+
+    RepositoryPaths repo_paths(current_path);
+    std::filesystem::path objs_path = repo_paths.objectsDir();
+    std::filesystem::path index_path = repo_paths.indexFile();
+
+    ObjectStore store(objs_path);
+    Index index;
+
+    if (!index.load(index_path))
+    {
+        std::cerr << "fatal: failed to load index" << std::endl;
+        return 1;
+    }
+
+    try
+    {
+        addPath(parsed.path, current_path, store, index);
+        if (!index.save(index_path))
+        {
+            throw std::runtime_error("fatal: failed to save index");
+        }
+    }
+    catch (const std::runtime_error& er)
+    {
+        std::cerr << er.what() << std::endl;
+        return 1;
+    }
+
+    return 0;
 }
 
 int main(int argc, char **argv)
