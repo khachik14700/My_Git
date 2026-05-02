@@ -8,5 +8,6 @@ enum class CommandType
     WriteTree,
     Config,
     Add,
+    Rm,
     Unknown
 };

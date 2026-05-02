@@ -91,11 +91,15 @@ bool Index::load(const std::filesystem::path& path)
     return true;
 }
 
-void Index::remove(const std::string& path)
+bool Index::remove(const std::string& path)
 {
+    std::size_t old_size = entries.size();
+
     entries.erase(
                 std::remove_if(entries.begin(), entries.end(),
                 [&path](const IndexEntry& entry){return entry.getPath() == path;}),
                 entries.end()
-            );                
+            );
+    
+    return entries.size() != old_size;
 }

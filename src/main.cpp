@@ -305,6 +305,67 @@ int handleAdd(const ParsedCommand& parsed, const std::filesystem::path& current_
     return 0;
 }
 
+int handleRm(const ParsedCommand& parsed, const std::filesystem::path& current_path)
+{
+    if (!Repository::isValid(current_path))
+    {
+        std::cerr << "Error: Current directory is not a valid repository" << std::endl;
+        return 1;
+    }
+
+    RepositoryPaths repo_paths(current_path);
+    std::filesystem::path index_path = repo_paths.indexFile();
+
+    Index index;
+    if (!index.load(index_path))
+    {
+        std::cerr << "Error: failed to load index" << std::endl;
+        return 1;
+    }
+
+    std::filesystem::path relative_path =
+    std::filesystem::path(parsed.path).lexically_normal();
+
+    std::filesystem::path full_path = current_path / relative_path;
+
+    bool removed = index.remove(relative_path.string());
+
+    if (!removed)
+    {
+        std::cerr << "Error: file is not in index" << std::endl;
+        return 1;
+    }
+
+    if (!parsed.cached)
+    {
+        if (FileSystemUtils::exists(full_path))
+        {
+            if (!FileSystemUtils::isRegularFile(full_path))
+            {
+                std::cerr << "Error: not a regular file" << std::endl;
+                return 1;
+            }
+
+            std::error_code ec;
+            std::filesystem::remove(full_path, ec);
+
+            if (ec)
+            {
+                std::cerr << "Error: failed to remove file" << std::endl;
+                return 1;
+            }
+        }
+    }
+
+    if (!index.save(index_path))
+    {
+        std::cerr << "Error: failed to save index" << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     ParsedCommand parsed = CommandParser::parse(argc, argv);
@@ -337,6 +398,10 @@ int main(int argc, char **argv)
     else if (parsed.command_type == CommandType::Add)
     {
         return handleAdd(parsed, current_path);
+    }
+    else if (parsed.command_type == CommandType::Rm)
+    {
+        return handleRm(parsed, current_path);
     }
 
     return 0;

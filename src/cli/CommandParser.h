@@ -18,6 +18,7 @@ struct ParsedCommand
     bool write;
     bool valid;
     bool from_fs;
+    bool cached;
     CatFileMode cat_file_mode;
     std::string config_key;
     std::string config_value;
@@ -36,5 +37,6 @@ class CommandParser
         static ParsedCommand parseWriteTree(int argc, char **argv);
         static ParsedCommand parseConfig(int argc, char** argv);
         static ParsedCommand parseAdd(int argc, char** argv);
+        static ParsedCommand parseRm(int argc, char** argv);
         static ParsedCommand makeError(const std::string& msg);
 };

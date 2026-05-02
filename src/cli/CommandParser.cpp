@@ -7,6 +7,7 @@ ParsedCommand CommandParser::makeError(const std::string& msg)
     result.command_type = CommandType::Unknown;
     result.write = false;
     result.from_fs = false;
+    result.cached = false;
     result.cat_file_mode = CatFileMode::None;
     result.path = "";
     result.config_key = "";
@@ -22,6 +23,7 @@ ParsedCommand CommandParser::parseInit(int argc, char** argv)
     result.valid = true;
     result.write = false;
     result.from_fs = false;
+    result.cached = false;
     result.path = "";
     result.cat_file_mode = CatFileMode::None;
     result.error_msg = "";
@@ -48,6 +50,7 @@ ParsedCommand CommandParser::parseHashObject(int argc, char** argv)
     result.valid = true;
     result.write = false;
     result.from_fs = false;
+    result.cached = false;
     result.cat_file_mode = CatFileMode::None;
     result.error_msg = "";
     result.config_key = "";
@@ -116,6 +119,7 @@ ParsedCommand CommandParser::parseCatFile(int argc, char** argv)
     result.valid = true;
     result.write = false;
     result.from_fs = false;
+    result.cached = false;
     result.cat_file_mode = CatFileMode::None;
     result.error_msg = "";
     result.config_key = "";
@@ -163,6 +167,7 @@ ParsedCommand CommandParser::parseWriteTree(int argc, char** argv)
     result.valid = false;
     result.write = false;
     result.from_fs = false;
+    result.cached = false;
     result.path = "";
     result.cat_file_mode = CatFileMode::None;
     result.error_msg = "";
@@ -217,6 +222,7 @@ ParsedCommand CommandParser::parseConfig(int argc, char** argv)
     result.valid = true;
     result.write = false;
     result.from_fs = false;
+    result.cached = false;
     result.path = "";
     result.cat_file_mode = CatFileMode::None;
     result.error_msg = "";
@@ -254,12 +260,47 @@ ParsedCommand CommandParser::parseAdd(int argc, char** argv)
     result.path = argv[2];
     result.write = false;
     result.from_fs = false;
+    result.cached = false;
     result.cat_file_mode = CatFileMode::None;
     result.config_key = "";
     result.config_value = "";
     result.error_msg = "";
 
     return result;
+}
+
+ParsedCommand CommandParser::parseRm(int argc, char** argv)
+{
+    if (argc == 2)
+    {
+        return makeError("rm: missing path");
+    }
+
+    ParsedCommand result;
+    result.command_type = CommandType::Rm;
+    result.valid = true;
+    result.path = "";
+    result.write = false;
+    result.from_fs = false;
+    result.cached = false;
+    result.cat_file_mode = CatFileMode::None;
+    result.config_key = "";
+    result.config_value = "";
+    result.error_msg = "";
+
+    if (argc == 3)
+    {
+        result.path = argv[2];
+        return result;
+    }
+    else if (argc == 4 && std::string(argv[2]) == "--cached")
+    {
+        result.cached = true;
+        result.path = argv[3];
+        return result;
+    }
+
+    return makeError("rm: usage: rm [--cached] <path>");
 }
 
 
@@ -295,6 +336,10 @@ ParsedCommand CommandParser::parse(int argc, char **argv)
     else if (command == "add")
     {
         return parseAdd(argc, argv);
+    }
+    else if (command == "rm")
+    {
+        return parseRm(argc, argv);
     }
     else
     {
