@@ -17,10 +17,11 @@ struct ParsedCommand
     std::string path;
     bool write;
     bool valid;
+    bool from_fs;
     CatFileMode cat_file_mode;
-    std::string error_msg;
     std::string config_key;
     std::string config_value;
+    std::string error_msg;
 };
 
 class CommandParser

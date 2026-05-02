@@ -24,7 +24,7 @@ int handleInit(const ParsedCommand& parsed, const std::filesystem::path& current
         }
         else
         {
-            std::cerr << "Failed to initialize repository" << std::endl;
+            std::cerr << "Error: Failed to initialize repository " << std::endl;
             return 1;
         }
     }
@@ -37,7 +37,7 @@ int handleInit(const ParsedCommand& parsed, const std::filesystem::path& current
         }
         else
         {
-            std::cerr << "Failed to initialize repository" << std::endl;
+            std::cerr << "Error: Failed to initialize repository " << std::endl;
             return 1;
         }
     }
@@ -47,19 +47,19 @@ int handleHashObject(const ParsedCommand& parsed, const std::filesystem::path& c
 {
     if (!FileSystemUtils::exists(parsed.path))
     {
-        std::cerr << "File does not exist" << std::endl;
+        std::cerr << "Error: File does not exist " << parsed.path << std::endl;
         return 1;
     }
     if (!FileSystemUtils::isRegularFile(parsed.path))
     {
-        std::cerr << "Path is not a regular file" << std::endl;
+        std::cerr << "Error: Path is not a regular file " << parsed.path << std::endl;
         return 1;
     }
     
     std::string file_content;
     if (!FileSystemUtils::readBinaryFile(parsed.path, file_content))
     {
-        std::cerr << "Failed to read file" << std::endl;
+        std::cerr << "Error: Failed to read file " << parsed.path << std::endl;
         return 1;
     }
     
@@ -75,7 +75,7 @@ int handleHashObject(const ParsedCommand& parsed, const std::filesystem::path& c
     {
         if (!Repository::isValid(current_path))
         {
-            std::cerr << "Current directory is not a valid repository" << std::endl;
+            std::cerr << "Error: Current directory is not a valid repository" << std::endl;
             return 1;
         }
         RepositoryPaths rep_path(current_path);
@@ -84,12 +84,12 @@ int handleHashObject(const ParsedCommand& parsed, const std::filesystem::path& c
         std::string stored_object_id = object_store.writeObject(raw_object);
         if (stored_object_id.empty())
         {
-            std::cerr << "Failed to write object" << std::endl;
+            std::cerr << "Error: Failed to write object" << std::endl;
             return 1;
         }
         if (stored_object_id != object_id)
         {
-            std::cerr << "Stored object id does not match computed object id" << std::endl;
+            std::cerr << "Error: Stored object id does not match computed object id" << std::endl;
             return 1;
         }
         std::cout << stored_object_id << std::endl;
@@ -101,7 +101,7 @@ int handleCatFile(const ParsedCommand& parsed, const std::filesystem::path& curr
 {
     if (!Repository::isValid(current_path))
     {
-        std::cerr << "Current directory is not a valid repository" << std::endl;
+        std::cerr << "Error: Current directory is not a valid repository" << std::endl;
         return 1;
     }
     RepositoryPaths repository_paths(current_path);
@@ -110,7 +110,7 @@ int handleCatFile(const ParsedCommand& parsed, const std::filesystem::path& curr
     std::string raw_object = object_store.readObject(parsed.path);
     if (raw_object.empty())
     {
-        std::cerr << "Failed to read object" << std::endl;
+        std::cerr << "Error: Object not found: " << parsed.path << std::endl;
         return 1;
     }
 
@@ -152,29 +152,28 @@ int handleCatFile(const ParsedCommand& parsed, const std::filesystem::path& curr
             }
             else
             {
-                std::cerr << "Pretty-print is currently supported only for blob objects" << std::endl;
+                std::cerr << "Error: Pretty-print not supported for this object type" << std::endl;
                 return 1;
             }
         }
         else
         {
-            std::cerr << "Unsupported cat-file mode" << std::endl;
+            std::cerr << "Error: Unsupported cat-file mode" << std::endl;
             return 1;
         }
     }
     catch(const std::runtime_error& e)
     {
-        std::cerr << e.what() << std::endl;
+        std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     }
 }
 
 int handleWriteTree(const ParsedCommand& parsed, const std::filesystem::path& current_path)
 {
-    (void)parsed;
     if (!Repository::isValid(current_path))
     {
-        std::cerr << "Current directory is not a valid repository" << std::endl;
+        std::cerr << "Error: Current directory is not a valid repository" << std::endl;
         return 1;
     }
     RepositoryPaths repository_paths(current_path);
@@ -182,12 +181,34 @@ int handleWriteTree(const ParsedCommand& parsed, const std::filesystem::path& cu
     ObjectStore store(objects_dir);
     try
     {
-        std::string tree_id = buildTree(current_path, store);
-        std::cout << tree_id << std::endl;
+        if (parsed.from_fs)
+        {
+            std::string tree_id = buildTree(current_path, store);
+            if (tree_id.empty())
+            {
+                throw std::runtime_error("Error: failed to write tree object");
+            }
+            std::cout << tree_id << std::endl;
+        }
+        else
+        {
+            Index index;
+            std::filesystem::path index_path = repository_paths.indexFile();
+            if (!index.load(index_path))
+            {
+                throw std::runtime_error("Error: failed to load index");
+            }
+            std::string tree_id = buildTreeFromIndex(index.getEntries(), "", store);
+            if (tree_id.empty())
+            {
+                throw std::runtime_error("Error: failed to write tree object from index");
+            }
+            std::cout << tree_id << std::endl;
+        }
     }
     catch (const std::runtime_error& er)
     {
-        std::cerr << er.what() << std::endl;
+        std::cerr << "Error: " <<  er.what() << std::endl;
         return 1;
     }
 
@@ -198,7 +219,7 @@ int handleConfig(const ParsedCommand& parsed, const std::filesystem::path& curre
 {
     if (!Repository::isValid(current_path))
     {
-        std::cerr << "fatal: not a valid repository" << std::endl;
+        std::cerr << "Error: Current directory is not a valid repository" << std::endl;
         return 1;
     }
 
@@ -208,7 +229,7 @@ int handleConfig(const ParsedCommand& parsed, const std::filesystem::path& curre
 
     if (!config.load(config_path))
     {
-        std::cerr << "fatal: failed to load config file" << std::endl;
+        std::cerr << "Error: failed to load config file" << std::endl;
         return 1;
     }
 
@@ -219,7 +240,7 @@ int handleConfig(const ParsedCommand& parsed, const std::filesystem::path& curre
     static const std::set<std::string> allowed_sections = {"core", "user"};
     if (allowed_sections.count(section) == 0)
     {
-        std::cerr << "config: unknown section '" << section << "'" << std::endl;
+        std::cerr << "Error: unknown section '" << section << "'" << std::endl;
         return 1;
     }
 
@@ -228,7 +249,7 @@ int handleConfig(const ParsedCommand& parsed, const std::filesystem::path& curre
         std::string value = config.get(section, key);
         if (value.empty())
         {
-            std::cerr << "config: key '" << parsed.config_key << "' not found" << std::endl;
+            std::cerr << "Error: key '" << parsed.config_key << "' not found" << std::endl;
             return 1;
         }
         std::cout << value << std::endl;
@@ -239,7 +260,7 @@ int handleConfig(const ParsedCommand& parsed, const std::filesystem::path& curre
         config.set(section, key, parsed.config_value);
         if (!config.save(config_path))
         {
-            std::cerr << "config: failed to save config file" << std::endl;
+            std::cerr << "Error: failed to save config file" << std::endl;
             return 1;
         }
         return 0;
@@ -250,7 +271,7 @@ int handleAdd(const ParsedCommand& parsed, const std::filesystem::path& current_
 {
     if (!Repository::isValid(current_path))
     {
-        std::cerr << "fatal: not a valid repository" << std::endl;
+        std::cerr << "Error: Current directory is not a valid repository" << std::endl;
         return 1;
     }
 
@@ -263,7 +284,7 @@ int handleAdd(const ParsedCommand& parsed, const std::filesystem::path& current_
 
     if (!index.load(index_path))
     {
-        std::cerr << "fatal: failed to load index" << std::endl;
+        std::cerr << "Error: failed to load index" << std::endl;
         return 1;
     }
 
@@ -272,12 +293,12 @@ int handleAdd(const ParsedCommand& parsed, const std::filesystem::path& current_
         addPath(parsed.path, current_path, store, index);
         if (!index.save(index_path))
         {
-            throw std::runtime_error("fatal: failed to save index");
+            throw std::runtime_error("Error: failed to save index");
         }
     }
     catch (const std::runtime_error& er)
     {
-        std::cerr << er.what() << std::endl;
+        std::cerr << "Error: " << er.what() << std::endl;
         return 1;
     }
 

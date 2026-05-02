@@ -6,6 +6,7 @@ ParsedCommand CommandParser::makeError(const std::string& msg)
     result.valid = false;
     result.command_type = CommandType::Unknown;
     result.write = false;
+    result.from_fs = false;
     result.cat_file_mode = CatFileMode::None;
     result.path = "";
     result.config_key = "";
@@ -20,6 +21,7 @@ ParsedCommand CommandParser::parseInit(int argc, char** argv)
     result.command_type = CommandType::Init;
     result.valid = true;
     result.write = false;
+    result.from_fs = false;
     result.path = "";
     result.cat_file_mode = CatFileMode::None;
     result.error_msg = "";
@@ -45,6 +47,7 @@ ParsedCommand CommandParser::parseHashObject(int argc, char** argv)
     result.path = "";
     result.valid = true;
     result.write = false;
+    result.from_fs = false;
     result.cat_file_mode = CatFileMode::None;
     result.error_msg = "";
     result.config_key = "";
@@ -112,6 +115,7 @@ ParsedCommand CommandParser::parseCatFile(int argc, char** argv)
     result.command_type = CommandType::CatFile;
     result.valid = true;
     result.write = false;
+    result.from_fs = false;
     result.cat_file_mode = CatFileMode::None;
     result.error_msg = "";
     result.config_key = "";
@@ -154,21 +158,39 @@ ParsedCommand CommandParser::parseCatFile(int argc, char** argv)
 
 ParsedCommand CommandParser::parseWriteTree(int argc, char** argv)
 {
-    (void)argv;
-    if (argc > 2)
-    {
-        return makeError("write-tree: too many arguments");
-    }
-
     ParsedCommand result;
     result.command_type = CommandType::WriteTree;
-    result.valid = true;
+    result.valid = false;
     result.write = false;
+    result.from_fs = false;
     result.path = "";
     result.cat_file_mode = CatFileMode::None;
     result.error_msg = "";
     result.config_key = "";
     result.config_value = "";
+    if (argc == 2)
+    {
+        result.valid = true;
+        return result;
+    }
+    else if (argc == 3)
+    {
+        std::string flag(argv[2]);
+        if (flag == "--from-fs")
+        {
+            result.valid = true;
+            result.from_fs = true;
+            return result;
+        }
+        else
+        {
+            return makeError("write-tree: unknown flag: " + flag);
+        }
+    }
+    else if (argc > 3)
+    {
+        return makeError("write-tree: too many arguments");
+    }
 
     return result;
 }
@@ -194,6 +216,7 @@ ParsedCommand CommandParser::parseConfig(int argc, char** argv)
     result.command_type = CommandType::Config;
     result.valid = true;
     result.write = false;
+    result.from_fs = false;
     result.path = "";
     result.cat_file_mode = CatFileMode::None;
     result.error_msg = "";
@@ -230,6 +253,7 @@ ParsedCommand CommandParser::parseAdd(int argc, char** argv)
     result.valid = true;
     result.path = argv[2];
     result.write = false;
+    result.from_fs = false;
     result.cat_file_mode = CatFileMode::None;
     result.config_key = "";
     result.config_value = "";

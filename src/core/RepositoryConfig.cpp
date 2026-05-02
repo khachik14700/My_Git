@@ -38,7 +38,7 @@ std::string RepositoryConfig::serialize() const
 
         for (const auto& key : section.second)
         {
-            result += "\t" + key.first + " = " + key.second + "\n";
+            result += "\t\t" + key.first + " = " + key.second + "\n";
         }
     }
     return result;
