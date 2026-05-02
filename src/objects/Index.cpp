@@ -1,5 +1,6 @@
 #include "Index.h"
 #include "../infra/FileSystemUtils.h"
+#include <algorithm>
 
 
 const std::vector<IndexEntry>& Index::getEntries() const
@@ -88,4 +89,13 @@ bool Index::load(const std::filesystem::path& path)
         }
     }
     return true;
+}
+
+void Index::remove(const std::string& path)
+{
+    entries.erase(
+                std::remove_if(entries.begin(), entries.end(),
+                [&path](const IndexEntry& entry){return entry.getPath() == path;}),
+                entries.end()
+            );                
 }

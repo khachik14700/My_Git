@@ -12,4 +12,5 @@ class Index
         bool save(const std::filesystem::path& path) const;
         void add(const IndexEntry& entry);
         const std::vector<IndexEntry>& getEntries() const;
+        void remove(const std::string& path);
 };

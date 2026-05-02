@@ -1,178 +1,238 @@
 # My_Git — Git Implementation in C++
 
-
 A Git-like version control system implemented in C++ from scratch.
-Implements **repository initialization**, **blob object storage**, **SHA-256 hashing**, **zlib compression**, and **object inspection**.
+Built step by step, understanding every algorithm and data structure along the way.
 
-> This project is built alongside a compression library that implements the algorithms used internally by zlib — including RLE, LZ77, Huffman Coding, and DEFLATE.
+> Alongside this project, a companion compression library is being built that implements the algorithms used internally by zlib — including RLE, LZ77, Huffman Coding, and DEFLATE.
 > **Compression project:** [github.com/khachik14700/zlib](https://github.com/khachik14700/zlib)
+
+---
+
+## Features
+
+| Feature | Status |
+|---------|--------|
+| Repository initialization | ✅ Done |
+| SHA-256 hashing via OpenSSL | ✅ Done |
+| zlib compression | ✅ Done |
+| Blob object storage | ✅ Done |
+| Tree object storage | ✅ Done |
+| Object inspection (cat-file) | ✅ Done |
+| Staging area (add) | ✅ Done |
+| Config (user.name, user.email) | ✅ Done |
+| write-tree from index | ✅ Done |
+| write-tree from filesystem | ✅ Done |
+| Commit objects | 🔧 In Progress |
+| Refs and HEAD management | 📋 Planned |
+| Log command | 📋 Planned |
+| Checkout | 📋 Planned |
+| Diff | 📋 Planned |
+| Merge | 📋 Planned |
 
 ---
 
 ## Commands
 
 ### init
-Initializes a new repository structure identical to Git.
+Initializes a new repository.
 ```bash
 ./mygit init
+./mygit init <path>
 ```
+
 Creates the following structure:
 ```
 .git/
-.git/objects/
-.git/refs/
-.git/refs/heads/
-.git/HEAD
-.git/config
+├── HEAD
+├── config
+├── index
+├── objects/
+└── refs/
+    └── heads/
 ```
+
+---
+
+### config
+Read or write repository configuration values.
+```bash
+./mygit config user.name "John Doe"
+./mygit config user.email "john@example.com"
+./mygit config user.name
+```
+
+Supported sections: `core`, `user`
+
+Config file format:
+```
+[core]
+    repositoryformatversion = 0
+    filemode = true
+    bare = false
+[user]
+    name = John Doe
+    email = john@example.com
+```
+
+---
 
 ### hash-object
-Creates a blob object from a file, serializes it, hashes it with SHA-256, and optionally writes it to the object database.
+Creates a blob object from a file.
 ```bash
-./mygit hash-object file.txt        # hash only
-./mygit hash-object -w file.txt     # hash and write to .git/objects
+./mygit hash-object file.txt         # compute hash only
+./mygit hash-object -w file.txt      # hash and write to .git/objects
 ```
 
-### cat-file
-Reads a stored object from the database and displays information about it.
+---
+
+### add
+Stage files for commit.
 ```bash
-./mygit cat-file -t <object_id>     # show type
-./mygit cat-file -s <object_id>     # show size
-./mygit cat-file -e <object_id>     # check if object exists
-./mygit cat-file -p <object_id>     # pretty-print content
+./mygit add file.txt      # stage a single file
+./mygit add .             # stage all files recursively
+```
+
+Reads the file, creates a blob object, and records the entry in `.git/index`.
+
+---
+
+### write-tree
+Build a tree object from the staging area.
+```bash
+./mygit write-tree           # build from .git/index (standard)
+./mygit write-tree --from-fs # build by traversing the filesystem directly
+```
+
+---
+
+### cat-file
+Inspect stored objects.
+```bash
+./mygit cat-file -t <hash>   # show object type (blob, tree, commit)
+./mygit cat-file -s <hash>   # show object size in bytes
+./mygit cat-file -e <hash>   # check if object exists
+./mygit cat-file -p <hash>   # pretty-print object contents
 ```
 
 ---
 
 ## How Object Storage Works
 
-When an object is written:
+Every object goes through the same pipeline:
+
 ```
-Input file → Blob serialization → SHA-256 hash → zlib compression → Binary write to .git/objects
+Content → Serialize → SHA-256 → zlib compress → Write to .git/objects
 ```
 
-The object is serialized using Git's exact format before hashing:
+Objects are stored by their hash:
+```
+hash: f0c38b23b154f77a...
+path: .git/objects/f0/c38b23b154f77a...
+```
+
+### Blob format
 ```
 blob <size>\0<content>
 ```
 
-For example, a file containing `hello` becomes:
+### Tree format
 ```
-blob 5\0hello
+tree <size>\0<entries>
 ```
 
-The SHA-256 hash of the full serialized object is used as the object ID. The object is then split into a directory and filename:
+Each entry in binary:
 ```
-hash: abcdef1234...
-stored at: .git/objects/ab/cdef1234...
+<mode> <name>\0<32 binary bytes of hash>
 ```
-This mirrors exactly how Git stores objects internally.
 
----
-
-## Project Structure
-
+Example pretty-printed output:
 ```
-.
-├── CLI/
-│   ├── CommandParser.h
-│   ├── CommandParser.cpp
-│   ├── CommandType.h
-│   ├── CatFileMode.h
-│   └── ParsedCommand.h
-├── CORE/
-│   ├── Repository.h
-│   ├── Repository.cpp
-│   ├── RepositoryPaths.h
-│   ├── RepositoryPaths.cpp
-│   ├── RepositoryConfig.h
-│   ├── RepositoryConfig.cpp
-│   ├── ObjectStore.h
-│   └── ObjectStore.cpp
-├── OBJECTS/
-│   ├── Blob.h
-│   ├── Blob.cpp
-│   ├── ObjectHeader.h
-│   ├── ObjectHeader.cpp
-│   ├── ObjectType.h
-│   ├── ObjectTypeUtils.h
-│   ├── ParsedObject.h
-│   └── ParsedObject.cpp
-├── INFRA/
-│   ├── Hash.h
-│   ├── Hash.cpp
-│   ├── Compression.h
-│   ├── Compression.cpp
-│   ├── FileSystemUtils.h
-│   └── FileSystemUtils.cpp
-├── main.cpp
-└── Makefile
+100644 blob 66224663...    file.txt
+040000 tree 3d36babe...    src
+```
+
+### Commit format (coming soon)
+```
+tree <tree_hash>
+parent <parent_hash>
+author <name> <email> <timestamp> <timezone>
+committer <name> <email> <timestamp> <timezone>
+
+<message>
 ```
 
 ---
 
 ## Architecture
 
-The project is divided into four modules, each with a clear responsibility.
+The project is divided into four layers, each with a clear responsibility:
 
-### CLI
-Handles command-line argument parsing. Converts raw `argv` into a structured `ParsedCommand` that the rest of the system consumes.
+```
+cli → core → objects → infra
+          ↑
+         ops
+```
 
-| Class | Responsibility |
-|-------|---------------|
-| `CommandParser` | Parses `argc / argv` into `ParsedCommand` |
-| `ParsedCommand` | Stores command type, path, flags, and error state |
-| `CommandType` | Enum — `Init`, `HashObject`, `CatFile`, `Unknown` |
-| `CatFileMode` | Enum — `Type`, `Size`, `Exists`, `PrettyPrint` |
+```
+src/
+├── main.cpp
+├── cli/
+│   ├── CommandParser.h / .cpp    ← parses argc/argv into ParsedCommand
+│   └── CommandType.h             ← enum: Init, HashObject, CatFile, Add, ...
+├── core/
+│   ├── Repository.h / .cpp       ← init, exists, isValid
+│   ├── RepositoryPaths.h / .cpp  ← all .git/ path resolution
+│   ├── RepositoryConfig.h / .cpp ← read/write .git/config
+│   └── ObjectStore.h / .cpp      ← write/read objects with compression
+├── objects/
+│   ├── Blob.h / .cpp             ← file content as Git object
+│   ├── Tree.h / .cpp             ← directory snapshot as Git object
+│   ├── TreeEntry.h / .cpp        ← single entry in a tree
+│   ├── Index.h / .cpp            ← staging area read/write
+│   ├── IndexEntry.h / .cpp       ← single entry in the index
+│   ├── ObjectHeader.h / .cpp     ← builds "blob 12\0" style headers
+│   ├── ObjectType.h / .cpp       ← enum: Blob, Tree, Commit, Unknown
+│   └── ParsedObject.h / .cpp     ← parses raw objects from disk
+├── ops/
+│   ├── WriteTree.h / .cpp        ← buildTree, buildTreeFromIndex
+│   └── Add.h / .cpp              ← addPath, addSingleFile
+└── infra/
+    ├── Hash.h / .cpp             ← SHA-256, hexToBytes, bytesToHex
+    ├── Compression.h / .cpp      ← zlib compress/decompress
+    └── FileSystemUtils.h / .cpp  ← file and directory operations
+```
 
-### CORE
-Contains the main repository and object storage logic.
+### Layer responsibilities
 
-| Class | Responsibility |
-|-------|---------------|
-| `Repository` | Initializes and validates the repository |
-| `RepositoryPaths` | Centralizes all internal path resolution |
-| `RepositoryConfig` | Generates and serializes the config file |
-| `ObjectStore` | Writes and reads objects from `.git/objects` |
+**cli** — argument parsing only. Converts raw `argv` into a structured `ParsedCommand`. Has no knowledge of Git internals.
 
-### OBJECTS
-Defines what Git objects are and how they are serialized and parsed.
+**core** — repository and storage logic. Knows where `.git/` is, how to read/write objects, config, and index.
 
-| Class | Responsibility |
-|-------|---------------|
-| `Blob` | Represents file content as a Git blob object |
-| `ObjectHeader` | Builds the `blob <size>\0` header |
-| `ParsedObject` | Parses a raw object into type, size, and payload |
-| `ObjectType` | Enum — `Blob`, `Tree`, `Commit`, `Unknown` |
-| `ObjectTypeUtils` | Converts between `ObjectType` and string |
+**objects** — Git object model. Defines what blob, tree, and commit are. Knows how to serialize and deserialize each format.
 
-### INFRA
-Low-level utilities used by the rest of the system.
+**ops** — high-level operations. Combines objects, core, and infra to implement commands like `add` and `write-tree`.
 
-| Class | Responsibility |
-|-------|---------------|
-| `Hash` | SHA-256 hashing via `Hash::sha256(...)` |
-| `Compression` | zlib compress and decompress |
-| `FileSystemUtils` | File and directory operations |
+**infra** — low-level utilities. Hashing, compression, filesystem operations. No Git-specific logic.
 
 ---
 
-## Compression
+## Key Design Decisions
 
-This project uses zlib to compress and decompress objects before writing them to disk — the same way Git does it in production.
+**SHA-256 instead of SHA-1**
+Git uses SHA-1 historically. This project uses SHA-256 from the start — more modern and collision-resistant.
 
-Alongside My_Git, I am also building a separate project where the compression algorithms are implemented manually:
-
+**Same object pipeline for all types**
+Every object (blob, tree, commit) goes through the same storage pipeline:
 ```
-RLE       — replaces repeated byte sequences with count and value pairs
-LZ77      — finds repeated patterns and replaces them with (offset, length) references
-Huffman   — assigns shorter bit codes to more frequent symbols
-DEFLATE   — combines LZ77 and Huffman into a full compression pipeline
+serialize() → sha256() → compress() → write to disk
 ```
 
-DEFLATE is the algorithm that zlib uses internally. Building it from scratch makes the compression call inside My_Git fully understood, not just used.
+**Index before write-tree**
+`write-tree` reads from `.git/index`, not from the filesystem directly.
+This matches real Git behavior — `add` stages files, `write-tree` snapshots the index.
 
-> **Compression project:** [github.com/khachik14700/zlib](https://github.com/khachik14700/zlib)
+**`--from-fs` flag (non-standard)**
+A custom flag that lets `write-tree` traverse the filesystem directly without using the index. Not present in Git — added as a learning and debugging tool.
 
 ---
 
@@ -180,59 +240,51 @@ DEFLATE is the algorithm that zlib uses internally. Building it from scratch mak
 
 Requirements:
 - g++ with C++17 support
+- OpenSSL (for SHA-256)
 - zlib
 - make
 
 ```bash
-make
-```
-
-Clean build artifacts:
-```bash
-make fclean
-```
-
-Rebuild from scratch:
-```bash
-make re
+make        # build
+make fclean # clean build artifacts
+make re     # rebuild from scratch
 ```
 
 ---
 
-## Example
+## Example workflow
 
 ```bash
-$ ./mygit init
-Initialized empty repository at .git/
+# Initialize repository
+./mygit init
 
-$ ./mygit hash-object -w hello.txt
-2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c4fa0b592d...
+# Set identity
+./mygit config user.name "Khachik Khachatryan"
+./mygit config user.email "khachik@email.com"
 
-$ ./mygit cat-file -t 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c4fa0b592d...
-blob
+# Create files
+echo "hello" > file.txt
+mkdir src && echo "void foo(){}" > src/utils.cpp
 
-$ ./mygit cat-file -s 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c4fa0b592d...
-5
+# Stage files
+./mygit add .
 
-$ ./mygit cat-file -p 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c4fa0b592d...
-hello
+# Inspect index
+cat .git/index
+
+# Build tree from index
+./mygit write-tree
+
+# Inspect tree
+./mygit cat-file -p <tree_hash>
+
+# Inspect blob
+./mygit cat-file -p <blob_hash>
 ```
 
 ---
 
-## Roadmap
+## About
 
-| Step | Feature | Status |
-|------|---------|--------|
-| 1 | Repository initialization | ✅ Done |
-| 2 | Object storage — hashing, compression, binary I/O | ✅ Done |
-| 3 | Core commands — init, hash-object, cat-file | ✅ Done |
-| 4 | UML architecture documentation | ✅ Done |
-| 5 | Tree objects + write-tree | 🔧 Next |
-| 6 | Staging area + add command | 📋 Planned |
-| 7 | Commit objects | 📋 Planned |
-| 8 | Branches and HEAD | 📋 Planned |
-| 9 | Log command | 📋 Planned |
-| 10 | Checkout | 📋 Planned |
-
----
+Built as a learning project to deeply understand how Git works internally —
+not by reading about it, but by implementing every piece from scratch.
