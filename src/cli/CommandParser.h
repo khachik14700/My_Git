@@ -22,6 +22,7 @@ struct ParsedCommand
     CatFileMode cat_file_mode;
     std::string config_key;
     std::string config_value;
+    std::string commit_message;
     std::string error_msg;
 };
 
@@ -38,5 +39,6 @@ class CommandParser
         static ParsedCommand parseConfig(int argc, char** argv);
         static ParsedCommand parseAdd(int argc, char** argv);
         static ParsedCommand parseRm(int argc, char** argv);
+        static ParsedCommand parseCommit(int argc, char** argv);
         static ParsedCommand makeError(const std::string& msg);
 };

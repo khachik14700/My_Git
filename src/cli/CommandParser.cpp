@@ -12,6 +12,7 @@ ParsedCommand CommandParser::makeError(const std::string& msg)
     result.path = "";
     result.config_key = "";
     result.config_value = "";
+    result.commit_message = "";
     result.error_msg = msg;
     return result;
 }
@@ -29,6 +30,7 @@ ParsedCommand CommandParser::parseInit(int argc, char** argv)
     result.error_msg = "";
     result.config_key = "";
     result.config_value = "";
+    result.commit_message = "";
 
     if (argc > 3)
     {
@@ -55,6 +57,7 @@ ParsedCommand CommandParser::parseHashObject(int argc, char** argv)
     result.error_msg = "";
     result.config_key = "";
     result.config_value = "";
+    result.commit_message = "";
 
 
     if (argc == 2)
@@ -124,6 +127,7 @@ ParsedCommand CommandParser::parseCatFile(int argc, char** argv)
     result.error_msg = "";
     result.config_key = "";
     result.config_value = "";
+    result.commit_message = "";
 
 
     std::string mode = std::string(argv[2]);
@@ -173,6 +177,7 @@ ParsedCommand CommandParser::parseWriteTree(int argc, char** argv)
     result.error_msg = "";
     result.config_key = "";
     result.config_value = "";
+    result.commit_message = "";
     if (argc == 2)
     {
         result.valid = true;
@@ -225,6 +230,7 @@ ParsedCommand CommandParser::parseConfig(int argc, char** argv)
     result.cached = false;
     result.path = "";
     result.cat_file_mode = CatFileMode::None;
+    result.commit_message = "";
     result.error_msg = "";
 
     if (argc == 3)
@@ -264,6 +270,7 @@ ParsedCommand CommandParser::parseAdd(int argc, char** argv)
     result.cat_file_mode = CatFileMode::None;
     result.config_key = "";
     result.config_value = "";
+    result.commit_message = "";
     result.error_msg = "";
 
     return result;
@@ -286,10 +293,15 @@ ParsedCommand CommandParser::parseRm(int argc, char** argv)
     result.cat_file_mode = CatFileMode::None;
     result.config_key = "";
     result.config_value = "";
+    result.commit_message = "";
     result.error_msg = "";
 
     if (argc == 3)
     {
+        if (std::string(argv[2]) == "--cached")
+        {
+            return makeError("rm: missing path after --cached");
+        }
         result.path = argv[2];
         return result;
     }
@@ -301,6 +313,63 @@ ParsedCommand CommandParser::parseRm(int argc, char** argv)
     }
 
     return makeError("rm: usage: rm [--cached] <path>");
+}
+
+ParsedCommand CommandParser::parseCommit(int argc, char** argv)
+{
+    ParsedCommand result;
+    result.command_type = CommandType::Commit;
+    result.path = "";
+    result.write = false;
+    result.from_fs = false;
+    result.cached = false;
+    result.cat_file_mode = CatFileMode::None;
+    result.config_key = "";
+    result.config_value = "";
+    result.commit_message = "";
+    result.error_msg = "";
+
+
+    if (argc == 2)
+    {
+        result.valid = true;
+        return result;
+    }
+    else if (argc == 3)
+    {
+        std::string flag(argv[2]);
+        if (flag[0] == '-')
+        {
+            if (flag == "-m")
+            {
+                return makeError("commit: missing message after -m");
+            }
+            else
+            {
+                return makeError("commit: unknown flag: " + flag);
+            }
+        }
+        else
+        {
+            return makeError("commit: use -m flag for message");
+        }
+    }
+    else if (argc == 4)
+    {
+        std::string flag(argv[2]);
+        if (flag == "-m")
+        {
+            result.valid = true;
+            result.commit_message = argv[3];
+            return result;
+        }
+        else
+        {
+            return makeError("commit: unknown flag: " + flag);
+        }
+    }
+
+    return makeError("commit: too many arguments");
 }
 
 
@@ -340,6 +409,10 @@ ParsedCommand CommandParser::parse(int argc, char **argv)
     else if (command == "rm")
     {
         return parseRm(argc, argv);
+    }
+    else if (command == "commit")
+    {
+        return parseCommit(argc, argv);
     }
     else
     {

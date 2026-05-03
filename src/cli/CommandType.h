@@ -9,5 +9,6 @@ enum class CommandType
     Config,
     Add,
     Rm,
+    Commit,
     Unknown
 };

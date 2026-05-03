@@ -9,6 +9,9 @@
 #include "ops/WriteTree.h"
 #include "core/RepositoryConfig.h"
 #include "ops/Add.h"
+#include "core/Refs.h"
+#include "objects/GitActor.h"
+#include "ops/CommitObject.h"
 #include <iostream>
 #include <filesystem>
 #include <set>
@@ -186,7 +189,7 @@ int handleWriteTree(const ParsedCommand& parsed, const std::filesystem::path& cu
             std::string tree_id = buildTree(current_path, store);
             if (tree_id.empty())
             {
-                throw std::runtime_error("Error: failed to write tree object");
+                throw std::runtime_error("failed to write tree object");
             }
             std::cout << tree_id << std::endl;
         }
@@ -196,12 +199,12 @@ int handleWriteTree(const ParsedCommand& parsed, const std::filesystem::path& cu
             std::filesystem::path index_path = repository_paths.indexFile();
             if (!index.load(index_path))
             {
-                throw std::runtime_error("Error: failed to load index");
+                throw std::runtime_error("failed to load index");
             }
             std::string tree_id = buildTreeFromIndex(index.getEntries(), "", store);
             if (tree_id.empty())
             {
-                throw std::runtime_error("Error: failed to write tree object from index");
+                throw std::runtime_error("failed to write tree object from index");
             }
             std::cout << tree_id << std::endl;
         }
@@ -293,7 +296,7 @@ int handleAdd(const ParsedCommand& parsed, const std::filesystem::path& current_
         addPath(parsed.path, current_path, store, index);
         if (!index.save(index_path))
         {
-            throw std::runtime_error("Error: failed to save index");
+            throw std::runtime_error("failed to save index");
         }
     }
     catch (const std::runtime_error& er)
@@ -366,6 +369,111 @@ int handleRm(const ParsedCommand& parsed, const std::filesystem::path& current_p
     return 0;
 }
 
+int handleCommit(const ParsedCommand& parsed, const std::filesystem::path& current_path)
+{
+    if (!Repository::isValid(current_path))
+    {
+        std::cerr << "Error: Current directory is not a valid repository" << std::endl;
+        return 1;
+    }
+    RepositoryPaths repo_paths(current_path);
+    std::filesystem::path objects_path = repo_paths.objectsDir();
+    std::filesystem::path index_file_path = repo_paths.indexFile();
+    std::filesystem::path config_path = repo_paths.configFile();
+
+    RepositoryConfig repo_config;
+    if (!repo_config.load(config_path))
+    {
+        std::cerr << "Error: failed to load config" << std::endl;
+        return 1;
+    }
+    std::string name = repo_config.get("user", "name");
+    std::string email = repo_config.get("user", "email");
+    if (name.empty() || email.empty())
+    {
+        std::cerr << "Error: please configure user.name and user.email" << std::endl;
+        return 1;
+    }
+
+    Index index;
+    if (!index.load(index_file_path))
+    {
+        std::cerr << "Error: failed to load index" << std::endl;
+        return 1;
+    }
+
+    std::vector<IndexEntry> index_entries = index.getEntries();
+    if (index_entries.empty())
+    {
+        std::cerr << "Error: nothing to commit" << std::endl;
+        return 1;
+    }
+
+    ObjectStore store(objects_path);
+    std::string tree_id = "";
+
+    Refs refs(current_path);
+    std::string branch = "";
+    std::string parent_id = "";
+    std::string message = "";
+
+    try
+    {
+        tree_id = buildTreeFromIndex(index_entries, "", store);
+        branch = refs.readHead();
+        parent_id = refs.readBranch(branch);
+    }
+    catch (const std::runtime_error& er)
+    {
+        std::cerr << er.what() << std::endl;
+        return 1;
+    }
+
+    if (parsed.commit_message.empty())
+    {
+        message = "";
+        //open redactor
+    }
+    else
+    {
+        message = parsed.commit_message;
+    }
+
+    if (message.empty())
+    {
+        std::cerr << "Error: commit message cannot be empty" << std::endl;
+        return 1;
+    }
+
+    GitActor commiter;
+    commiter.name = name;
+    commiter.email = email;
+    commiter.timestamp = 0;
+    commiter.timezone = "";
+
+    GitActor author;
+    author.name = name;
+    author.email = email;
+    author.timestamp = 0;
+    author.timezone = "";
+
+    try
+    {
+        std::string commit_id = createCommit(tree_id, parent_id, message, author, commiter, store);
+        if (!refs.updateBranch(branch, commit_id))
+            throw std::runtime_error("failed to update branch");
+        if (!refs.updateHead(branch))
+            throw std::runtime_error("failed to update HEAD");
+        std::cout << commit_id << std::endl;
+        return 0;
+    }
+    catch (const std::runtime_error& er)
+    {
+        std::cerr << "Error: " << er.what() << std::endl;
+        return 1;
+    }
+}
+
 int main(int argc, char **argv)
 {
     ParsedCommand parsed = CommandParser::parse(argc, argv);
@@ -402,6 +510,10 @@ int main(int argc, char **argv)
     else if (parsed.command_type == CommandType::Rm)
     {
         return handleRm(parsed, current_path);
+    }
+    else if (parsed.command_type == CommandType::Commit)
+    {
+        return handleCommit(parsed, current_path);
     }
 
     return 0;

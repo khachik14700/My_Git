@@ -11,6 +11,7 @@ SRCS = \
     src/core/RepositoryPaths.cpp \
     src/core/RepositoryConfig.cpp \
     src/core/ObjectStore.cpp \
+    src/core/Refs.cpp \
     src/infra/FileSystemUtils.cpp \
     src/infra/Hash.cpp \
     src/infra/Compression.cpp \
@@ -22,8 +23,10 @@ SRCS = \
     src/objects/Tree.cpp \
     src/objects/IndexEntry.cpp \
     src/objects/Index.cpp \
+    src/objects/Commit.cpp \
     src/ops/WriteTree.cpp \
-    src/ops/Add.cpp
+    src/ops/Add.cpp \
+    src/ops/CommitObject.cpp
 
 
 OBJS = $(SRCS:.cpp=.o)
