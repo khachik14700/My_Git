@@ -214,6 +214,16 @@ src/
 
 **infra** — low-level utilities. Hashing, compression, filesystem operations. No Git-specific logic.
 
+## Architecture Diagram
+
+Below is a visual representation of the system architecture:
+
+![Architecture Diagram](./architecture.svg)
+
+> The diagram illustrates the layered design of the project (`cli → core → objects → infra → ops`) and how data flows through the system — from user commands down to object storage.
+
+[Open full diagram](./architecture.svg)
+
 ---
 
 ## Key Design Decisions
