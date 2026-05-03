@@ -223,6 +223,7 @@ Below is a visual representation of the system architecture:
 > The diagram illustrates the layered design of the project (`cli → core → objects → infra → ops`) and how data flows through the system — from user commands down to object storage.
 
 [Open full diagram](./architecture.svg)
+[Open via raw GitHub link](https://raw.githubusercontent.com/khachik14700/My_Git/0a76e379c19f87619d9ec429e878145ec4129bd1/architecture.svg)
 
 ---
 
