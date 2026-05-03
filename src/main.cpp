@@ -12,6 +12,7 @@
 #include "core/Refs.h"
 #include "objects/GitActor.h"
 #include "ops/CommitObject.h"
+#include "cli/Editor.h"
 #include <iostream>
 #include <filesystem>
 #include <set>
@@ -151,6 +152,11 @@ int handleCatFile(const ParsedCommand& parsed, const std::filesystem::path& curr
                     std::string obj_type = (entry.getMode() == "40000") ? "tree" : "blob";
                     std::cout << display_mode << " " << obj_type << " " << entry.getObjectId() << "    " << entry.getName() << std::endl;
                 }
+                return 0;
+            }
+            else if (parsed_object.type() == "commit")
+            {
+                std::cout << parsed_object.payload() << std::endl;
                 return 0;
             }
             else
@@ -431,8 +437,16 @@ int handleCommit(const ParsedCommand& parsed, const std::filesystem::path& curre
 
     if (parsed.commit_message.empty())
     {
-        message = "";
-        //open redactor
+        try
+        {
+            std::filesystem::path editor_file_path = repo_paths.commitEditMsgFile();
+            message = openEditor(editor_file_path);
+        }
+        catch (const std::runtime_error& er)
+        {
+            std::cerr << er.what() << std::endl;
+            return 1;
+        }
     }
     else
     {

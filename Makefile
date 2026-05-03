@@ -7,6 +7,7 @@ TARGET = mygit
 SRCS = \
     src/main.cpp \
     src/cli/CommandParser.cpp \
+    src/cli/Editor.cpp \
     src/core/Repository.cpp \
     src/core/RepositoryPaths.cpp \
     src/core/RepositoryConfig.cpp \

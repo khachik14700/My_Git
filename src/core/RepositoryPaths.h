@@ -16,4 +16,5 @@ class RepositoryPaths
         std::filesystem::path headFile();
         std::filesystem::path configFile();
         std::filesystem::path indexFile();
+        std::filesystem::path commitEditMsgFile();
 };

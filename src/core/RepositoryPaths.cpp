@@ -44,3 +44,8 @@ std::filesystem::path RepositoryPaths::indexFile()
 {
     return gitDir()/"index";
 }
+
+std::filesystem::path RepositoryPaths::commitEditMsgFile()
+{
+    return gitDir() / "COMMIT_EDITMSG";
+}
