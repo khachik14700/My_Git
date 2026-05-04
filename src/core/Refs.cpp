@@ -92,3 +92,85 @@ bool Refs::updateHead(const std::string& branch_name)
     }
     return FileSystemUtils::writeTextFile(head_path, content);
 }
+
+std::vector<std::string> Refs::listBranches()
+{
+    std::vector<std::string> result;
+    RepositoryPaths repo_paths(repo_root);
+    std::filesystem::path heads_dir_path = repo_paths.headsDir();
+    for (const auto& entry : std::filesystem::directory_iterator(heads_dir_path))
+    {
+        if (FileSystemUtils::isRegularFile(entry.path()))
+        {
+            std::string name = entry.path().filename().string();
+            result.push_back(name);
+        }
+    }
+    return result;
+}
+
+bool Refs::createBranch(const std::string& branch_name, const std::string& commit_id)
+{
+    RepositoryPaths repo_paths(repo_root);
+    std::filesystem::path branch_path = repo_paths.headsDir() / branch_name;
+    if (FileSystemUtils::exists(branch_path))
+    {
+        throw std::runtime_error("Error: branch '" + branch_name + "' already exists");
+    }
+    return FileSystemUtils::writeTextFile(branch_path, commit_id + "\n");
+}
+
+bool Refs::deleteBranch(const std::string& branch_name)
+{
+    RepositoryPaths repo_paths(repo_root);
+    std::filesystem::path branch_path = repo_paths.headsDir() / branch_name;
+    if (!FileSystemUtils::exists(branch_path))
+    {
+        throw std::runtime_error("Error: branch '" + branch_name + "' does not exist");
+    }
+    std::string current_branch = readHead();
+    if (current_branch == branch_name)
+    {
+        throw std::runtime_error("Error: cannot delete current branch '" + branch_name + "'");
+    }
+    std::error_code ec;
+    std::filesystem::remove(branch_path, ec);
+    if (ec)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool Refs::renameBranch(const std::string& old_name, const std::string& new_name)
+{
+    RepositoryPaths repo_paths(repo_root);
+    std::filesystem::path branch_path = repo_paths.headsDir() / old_name;
+    if (!FileSystemUtils::exists(branch_path))
+    {
+        throw std::runtime_error("Error: branch '" + old_name + "' does not exist");
+    }
+
+    std::filesystem::path new_branch_path = repo_paths.headsDir() / new_name;
+    if (FileSystemUtils::exists(new_branch_path))
+    {
+        throw std::runtime_error("Error: branch '" + new_name + "' already exists");
+    }
+
+    std::error_code ec;
+    std::filesystem::rename(branch_path, new_branch_path, ec);
+    if (ec)
+    {
+        return false;
+    }
+
+    if (readHead() == old_name)
+    {
+        if (!updateHead(new_name))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}

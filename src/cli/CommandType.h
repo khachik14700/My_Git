@@ -10,5 +10,6 @@ enum class CommandType
     Add,
     Rm,
     Commit,
+    Branch,
     Unknown
 };

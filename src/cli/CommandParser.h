@@ -11,6 +11,15 @@ enum class CatFileMode
     PrettyPrint
 };
 
+enum class BranchMode
+{
+    None,
+    List,
+    Create,
+    Delete,
+    Rename
+};
+
 struct ParsedCommand
 {
     CommandType command_type;
@@ -20,6 +29,8 @@ struct ParsedCommand
     bool from_fs;
     bool cached;
     CatFileMode cat_file_mode;
+    BranchMode branch_mode;
+    std::string branch_new_name;
     std::string config_key;
     std::string config_value;
     std::string commit_message;
@@ -40,5 +51,6 @@ class CommandParser
         static ParsedCommand parseAdd(int argc, char** argv);
         static ParsedCommand parseRm(int argc, char** argv);
         static ParsedCommand parseCommit(int argc, char** argv);
+        static ParsedCommand parseBranch(int argc, char** argv);
         static ParsedCommand makeError(const std::string& msg);
 };

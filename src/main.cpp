@@ -488,6 +488,72 @@ int handleCommit(const ParsedCommand& parsed, const std::filesystem::path& curre
     }
 }
 
+int handleBranch(const ParsedCommand& parsed, const std::filesystem::path& current_path)
+{
+    if (!Repository::isValid(current_path))
+    {
+        std::cerr << "Error: Current directory is not a valid repository" << std::endl;
+        return 1;
+    }
+    Refs refs(current_path);
+    try
+    {
+        switch (parsed.branch_mode)
+        {
+            case BranchMode::List:
+            {   
+                std::vector<std::string> branches = refs.listBranches();
+                std::string current = refs.readHead();
+                for (const std::string& branch : branches)
+                {
+                    if (current == branch)
+                    {
+                        std::cout << "* " << branch << std::endl;
+                    }
+                    else
+                    {
+                        std::cout << "  " << branch << std::endl;
+                    }
+                }
+                break;
+            }
+
+            case BranchMode::Create:
+            {   
+                std::string commit_id = refs.readBranch(refs.readHead());
+                if (commit_id.empty())
+                {
+                    std::cerr << "Error: no commits yet" << std::endl;
+                    return 1;
+                }
+                refs.createBranch(parsed.path, commit_id);
+                break;
+            }
+
+            case BranchMode::Delete:
+            {   
+                refs.deleteBranch(parsed.path);
+                break;
+            }
+
+            case BranchMode::Rename:
+            {   
+                refs.renameBranch(parsed.path, parsed.branch_new_name);
+                break;
+            }
+            
+            default:
+                break;
+        }
+        return 0;
+    }
+    catch (const std::runtime_error& er)
+    {
+        std::cerr << er.what() << std::endl;
+        return 1;
+    }
+}
+
 int main(int argc, char **argv)
 {
     ParsedCommand parsed = CommandParser::parse(argc, argv);
@@ -528,6 +594,10 @@ int main(int argc, char **argv)
     else if (parsed.command_type == CommandType::Commit)
     {
         return handleCommit(parsed, current_path);
+    }
+    else if (parsed.command_type == CommandType::Branch)
+    {
+        return handleBranch(parsed, current_path);
     }
 
     return 0;
