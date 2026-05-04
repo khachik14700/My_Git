@@ -13,6 +13,7 @@
 #include "objects/GitActor.h"
 #include "ops/CommitObject.h"
 #include "cli/Editor.h"
+#include "ops/Checkout.h"
 #include <iostream>
 #include <filesystem>
 #include <set>
@@ -554,6 +555,65 @@ int handleBranch(const ParsedCommand& parsed, const std::filesystem::path& curre
     }
 }
 
+int handleSwitch(const ParsedCommand& parsed, const std::filesystem::path& current_path)
+{
+    if (!Repository::isValid(current_path))
+    {
+        std::cerr << "Error: Current directory is not a valid repository" << std::endl;
+        return 1;
+    }
+
+    try
+    {        
+        Refs refs(current_path);
+        std::string current_branch = refs.readHead();
+
+        if (parsed.create_branch)
+        {
+            std::string commit_id = refs.readBranch(current_branch);
+            if (commit_id.empty())
+            {
+                std::cerr << "Error: no commits yet" << std::endl;
+                return 1;
+            }
+            refs.createBranch(parsed.path, commit_id);
+        }
+
+        std::string commit_id = refs.readBranch(parsed.path);
+        if (commit_id.empty())
+        {
+            std::cerr << "Error: branch '" << parsed.path << "' does not exist" << std::endl;
+            return 1;
+        }
+
+        RepositoryPaths repo_paths(current_path);
+        std::filesystem::path objects_path = repo_paths.objectsDir();
+        ObjectStore store(objects_path);
+        std::string raw = store.readObject(commit_id);
+        ParsedObject parsed_commit = ParsedObject::parse(raw);
+        std::string tree_id = parsed_commit.parseCommitTreeId();
+
+        restoreTree(tree_id, current_path, store);
+
+        Index new_index;
+        addPath(".", current_path, store, new_index);
+        if (!new_index.save(repo_paths.indexFile()))
+        {
+            throw std::runtime_error("Error: failed to save index");
+        }
+
+        refs.updateHead(parsed.path);
+        
+        std::cout << "Switched to branch '" << refs.readHead() << "'" << std::endl;
+        return 0;
+    }
+    catch (const std::runtime_error& er)
+    {
+        std::cerr << er.what() << std::endl;
+        return 1;
+    }
+}
+
 int main(int argc, char **argv)
 {
     ParsedCommand parsed = CommandParser::parse(argc, argv);
@@ -598,6 +658,10 @@ int main(int argc, char **argv)
     else if (parsed.command_type == CommandType::Branch)
     {
         return handleBranch(parsed, current_path);
+    }
+    else if (parsed.command_type == CommandType::Switch)
+    {
+        return handleSwitch(parsed, current_path);
     }
 
     return 0;

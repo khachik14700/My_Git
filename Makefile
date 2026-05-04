@@ -27,7 +27,8 @@ SRCS = \
     src/objects/Commit.cpp \
     src/ops/WriteTree.cpp \
     src/ops/Add.cpp \
-    src/ops/CommitObject.cpp
+    src/ops/CommitObject.cpp \
+    src/ops/Checkout.cpp
 
 
 OBJS = $(SRCS:.cpp=.o)

@@ -17,4 +17,5 @@ class ParsedObject
         const std::string& payload() const;
         static ParsedObject parse(const std::string& raw_object);
         std::vector<TreeEntry> parseTreePayload() const;
+        std::string parseCommitTreeId() const;
 };

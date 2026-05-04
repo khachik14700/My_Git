@@ -28,6 +28,7 @@ struct ParsedCommand
     bool valid;
     bool from_fs;
     bool cached;
+    bool create_branch;
     CatFileMode cat_file_mode;
     BranchMode branch_mode;
     std::string branch_new_name;
@@ -52,5 +53,6 @@ class CommandParser
         static ParsedCommand parseRm(int argc, char** argv);
         static ParsedCommand parseCommit(int argc, char** argv);
         static ParsedCommand parseBranch(int argc, char** argv);
+        static ParsedCommand parseSwitch(int argc, char** argv);
         static ParsedCommand makeError(const std::string& msg);
 };

@@ -82,3 +82,16 @@ std::vector<TreeEntry> ParsedObject::parseTreePayload() const
     }
     return entries;
 }
+
+std::string ParsedObject::parseCommitTreeId() const
+{
+    std::size_t new_line_pos = payload_.find_first_of('\n');
+    std::string line = payload_.substr(0, new_line_pos);
+    std::string prefix = "tree ";
+    if (line.find(prefix) != 0)
+    {
+        throw std::runtime_error("Error: invalid commit format — missing tree id");
+    }
+    
+    return line.substr(prefix.length());
+}

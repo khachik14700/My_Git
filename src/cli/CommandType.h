@@ -11,5 +11,6 @@ enum class CommandType
     Rm,
     Commit,
     Branch,
+    Switch,
     Unknown
 };
