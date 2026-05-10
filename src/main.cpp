@@ -589,11 +589,6 @@ int handleSwitch(const ParsedCommand& parsed, const std::filesystem::path& curre
         RepositoryPaths repo_paths(current_path);
         std::filesystem::path objects_path = repo_paths.objectsDir();
         ObjectStore store(objects_path);
-        // std::string raw = store.readObject(commit_id);
-        // ParsedObject parsed_commit = ParsedObject::parse(raw);
-        // std::string tree_id = parsed_commit.parseCommitTreeId();
-
-        // restoreTree(tree_id, current_path, store);
 
         std::string target_raw = store.readObject(commit_id);
         ParsedObject target_commit = ParsedObject::parse(target_raw);
