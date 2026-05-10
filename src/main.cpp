@@ -589,11 +589,39 @@ int handleSwitch(const ParsedCommand& parsed, const std::filesystem::path& curre
         RepositoryPaths repo_paths(current_path);
         std::filesystem::path objects_path = repo_paths.objectsDir();
         ObjectStore store(objects_path);
-        std::string raw = store.readObject(commit_id);
-        ParsedObject parsed_commit = ParsedObject::parse(raw);
-        std::string tree_id = parsed_commit.parseCommitTreeId();
+        // std::string raw = store.readObject(commit_id);
+        // ParsedObject parsed_commit = ParsedObject::parse(raw);
+        // std::string tree_id = parsed_commit.parseCommitTreeId();
 
-        restoreTree(tree_id, current_path, store);
+        // restoreTree(tree_id, current_path, store);
+
+        std::string target_raw = store.readObject(commit_id);
+        ParsedObject target_commit = ParsedObject::parse(target_raw);
+        std::string target_tree_id = target_commit.parseCommitTreeId();
+
+        std::string current_commit_id = refs.readBranch(current_branch);
+        std::string current_raw = store.readObject(current_commit_id);
+        ParsedObject current_commit = ParsedObject::parse(current_raw);
+        std::string current_tree_id = current_commit.parseCommitTreeId();
+
+        std::vector<std::string> current_files = getTreeFiles(current_tree_id, "", store);
+        std::vector<std::string> target_files = getTreeFiles(target_tree_id, "", store);
+
+        std::set<std::string> target_set(target_files.begin(), target_files.end());
+
+        for (const std::string& file : current_files)
+        {
+            if (target_set.find(file) == target_set.end())
+            {
+                std::filesystem::path file_path = current_path / file;
+                if (FileSystemUtils::exists(file_path))
+                {
+                    std::filesystem::remove(file_path);
+                }
+            }
+        }
+
+        restoreTree(target_tree_id, current_path, store);
 
         Index new_index;
         addPath(".", current_path, store, new_index);

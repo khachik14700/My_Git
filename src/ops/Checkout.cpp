@@ -40,3 +40,32 @@ void restoreTree(const std::string& tree_id, const std::filesystem::path& target
         }
     }
 }
+
+std::vector<std::string> getTreeFiles(const std::string& tree_id, const std::string& prefix, ObjectStore& store)
+{
+    std::vector<std::string> result;
+
+    std::string raw = store.readObject(tree_id);
+    if (raw.empty())
+    {
+        throw std::runtime_error("Error: failed to read tree object: " + tree_id);
+    }
+
+    ParsedObject parsed = ParsedObject::parse(raw);
+    std::vector<TreeEntry> entries = parsed.parseTreePayload();
+
+    for (const TreeEntry& entry : entries)
+    {
+        if (entry.getMode() == "100644")
+        {
+            result.push_back(prefix + entry.getName());
+        }
+        else if (entry.getMode() == "40000")
+        {
+            std::vector<std::string> nested = getTreeFiles(entry.getObjectId(), prefix + entry.getName() + '/', store);
+            result.insert(result.end(), nested.begin(), nested.end());
+        }
+    }
+
+    return result;
+}
