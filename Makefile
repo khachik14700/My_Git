@@ -16,6 +16,7 @@ SRCS = \
     src/infra/FileSystemUtils.cpp \
     src/infra/Hash.cpp \
     src/infra/Compression.cpp \
+    src/infra/GitIgnore.cpp \
     src/objects/Blob.cpp \
     src/objects/ObjectHeader.cpp \
     src/objects/ObjectType.cpp \
@@ -41,12 +42,18 @@ $(TARGET): $(OBJS)
 %.o: %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
+
 clean:
 	rm -f $(OBJS)
 
 fclean: clean
 	rm -f $(TARGET)
 
+install: $(TARGET)
+	cp $(TARGET) ~/.local/bin/$(TARGET)
+	chmod +x ~/.local/bin/$(TARGET)
+	$(MAKE) fclean
+
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean install re

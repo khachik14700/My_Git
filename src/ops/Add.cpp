@@ -1,6 +1,7 @@
 #include "Add.h"
 #include "../infra/FileSystemUtils.h"
 #include "../objects/Blob.h"
+#include "../infra/GitIgnore.h"
 
 static void addSingleFile(const std::filesystem::path& path, const std::filesystem::path& repo_root, ObjectStore& store, Index& index)
 {
@@ -17,6 +18,9 @@ static void addSingleFile(const std::filesystem::path& path, const std::filesyst
 
 void addPath(const std::string& path, const std::filesystem::path& repo_root, ObjectStore& store, Index& index)
 {
+    GitIgnore gitignore(repo_root);
+    gitignore.load();
+
     if (path == ".")
     {
         for (const auto& entry : std::filesystem::recursive_directory_iterator(repo_root))
@@ -29,6 +33,14 @@ void addPath(const std::string& path, const std::filesystem::path& repo_root, Ob
             }
             if (FileSystemUtils::isRegularFile(entry_path))
             {
+                if (GitIgnore::isOwnExecutable(entry_path))
+                {
+                    continue;
+                }
+                if (gitignore.isIgnored(entry_path))
+                {
+                    continue;
+                }
                 addSingleFile(entry_path, repo_root, store, index);
             }
         }
@@ -43,6 +55,14 @@ void addPath(const std::string& path, const std::filesystem::path& repo_root, Ob
         if (!FileSystemUtils::isRegularFile(full_path))
         {
             throw std::runtime_error("not a regular file: " + path);
+        }
+        if (GitIgnore::isOwnExecutable(full_path))
+        {
+            throw std::runtime_error("cannot add own executable");
+        }
+        if (gitignore.isIgnored(full_path))
+        {
+            throw std::runtime_error("file is ignored: " + path);
         }
         addSingleFile(full_path, repo_root, store, index);
     }
