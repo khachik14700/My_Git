@@ -2,6 +2,8 @@
 #include "../infra/FileSystemUtils.h"
 #include "../objects/Blob.h"
 #include "../infra/GitIgnore.h"
+#include "../objects/ParsedObject.h"
+#include "../objects/TreeEntry.h"
 
 static void addSingleFile(const std::filesystem::path& path, const std::filesystem::path& repo_root, ObjectStore& store, Index& index)
 {
@@ -65,5 +67,31 @@ void addPath(const std::string& path, const std::filesystem::path& repo_root, Ob
             throw std::runtime_error("file is ignored: " + path);
         }
         addSingleFile(full_path, repo_root, store, index);
+    }
+}
+
+void buildIndexFromTree(const std::string& tree_id, const std::string& prefix, ObjectStore& store, Index& index)
+{
+    std::string raw = store.readObject(tree_id);
+
+    if (raw.empty())
+    {
+        throw std::runtime_error("Error: failed to read tree object: " + tree_id);
+    }
+
+    ParsedObject parsed = ParsedObject::parse(raw);
+    std::vector<TreeEntry> entries = parsed.parseTreePayload();
+
+    for (const TreeEntry& entry : entries)
+    {
+        if (entry.getMode() == "100644")
+        {
+            std::string path = prefix + entry.getName();
+            index.add(IndexEntry(entry.getMode(), entry.getObjectId(), path));
+        }
+        else if (entry.getMode() == "40000")
+        {
+            buildIndexFromTree(entry.getObjectId(), prefix + entry.getName() + '/', store, index);
+        }
     }
 }

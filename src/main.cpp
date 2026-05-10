@@ -624,7 +624,7 @@ int handleSwitch(const ParsedCommand& parsed, const std::filesystem::path& curre
         restoreTree(target_tree_id, current_path, store);
 
         Index new_index;
-        addPath(".", current_path, store, new_index);
+        buildIndexFromTree(target_tree_id, "", store, new_index);
         if (!new_index.save(repo_paths.indexFile()))
         {
             throw std::runtime_error("Error: failed to save index");
