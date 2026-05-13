@@ -2,6 +2,7 @@
 #include "../infra/Hash.h"
 #include "Tree.h"
 #include <stdexcept>
+#include <sstream>
 
 ParsedObject::ParsedObject(const std::string& type, std::size_t size, const std::string& payload)
 {
@@ -94,4 +95,59 @@ std::string ParsedObject::parseCommitTreeId() const
     }
     
     return line.substr(prefix.length());
+}
+
+std::string ParsedObject::parseCommitParentId() const
+{
+    std::istringstream ss(payload_);
+    std::string line;
+    while (std::getline(ss, line))
+    {
+        if (line.find("parent ") == 0)
+        {
+            return line.substr(7);
+        }
+    }
+    return "";
+}
+
+std::string ParsedObject::parseCommitAuthor() const
+{
+    std::istringstream ss(payload_);
+    std::string line;
+    while (std::getline(ss, line))
+    {
+        if (line.find("author ") == 0)
+        {
+            return line.substr(7);
+        }
+    }
+    return "";
+}
+
+std::string ParsedObject::parseCommitMessage() const
+{
+    std::istringstream ss(payload_);
+    std::string line;
+    std::ostringstream message;
+    bool found_empty_line = false;
+
+    while (std::getline(ss, line))
+    {
+        if (found_empty_line)
+        {
+            message << line << "\n";
+        }
+        else if (line.empty())
+        {
+            found_empty_line = true;
+        }
+    }
+    std::string result = message.str();
+
+    if (!result.empty() && result.back() == '\n')
+    {
+        result.pop_back();
+    }
+    return result;
 }
