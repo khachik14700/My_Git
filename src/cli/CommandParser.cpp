@@ -554,6 +554,30 @@ ParsedCommand CommandParser::parseSwitch(int argc, char** argv)
     }
 }
 
+ParsedCommand CommandParser::parseStatus(int argc, char** argv)
+{
+    (void)argv;
+    ParsedCommand result;
+    result.command_type = CommandType::Status;
+    result.write = false;
+    result.from_fs = false;
+    result.cached = false;
+    result.create_branch = false;
+    result.cat_file_mode = CatFileMode::None;
+    result.branch_mode = BranchMode::None;
+    result.branch_new_name = "";
+    result.path = "";
+    result.config_key = "";
+    result.config_value = "";
+    result.commit_message = "";
+    
+    if (argc == 2)
+    {
+        result.valid = true;
+        return result;
+    }
+    return makeError("status: too many arguments");
+}
 
 ParsedCommand CommandParser::parse(int argc, char **argv)
 {
@@ -603,6 +627,10 @@ ParsedCommand CommandParser::parse(int argc, char **argv)
     else if (command == "switch")
     {
         return parseSwitch(argc, argv);
+    }
+    else if (command == "status")
+    {
+        return parseStatus(argc, argv);
     }
     else
     {

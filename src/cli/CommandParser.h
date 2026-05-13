@@ -54,5 +54,6 @@ class CommandParser
         static ParsedCommand parseCommit(int argc, char** argv);
         static ParsedCommand parseBranch(int argc, char** argv);
         static ParsedCommand parseSwitch(int argc, char** argv);
+        static ParsedCommand parseStatus(int argc, char** argv);
         static ParsedCommand makeError(const std::string& msg);
 };

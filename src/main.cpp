@@ -14,6 +14,7 @@
 #include "ops/CommitObject.h"
 #include "cli/Editor.h"
 #include "ops/Checkout.h"
+#include "ops/Status.h"
 #include <iostream>
 #include <filesystem>
 #include <set>
@@ -637,6 +638,77 @@ int handleSwitch(const ParsedCommand& parsed, const std::filesystem::path& curre
     }
 }
 
+int handleStatus(const ParsedCommand& parsed, const std::filesystem::path& current_path)
+{
+    (void)parsed;
+    if (!Repository::isValid(current_path))
+    {
+        std::cerr << "Error: Current directory is not a valid repository" << std::endl;
+        return 1;
+    }
+
+    try
+    {
+        RepositoryPaths repo_paths(current_path);
+        std::filesystem::path index_path = repo_paths.indexFile();
+        Index index;
+        index.load(index_path);
+
+        Refs refs(current_path);
+        std::string branch = refs.readHead();
+        std::string head_commit_id = refs.readBranch(branch);
+
+        std::filesystem::path obj_path = repo_paths.objectsDir();
+        ObjectStore store(obj_path);
+        StatusResult result = getStatus(current_path, store, index, head_commit_id);
+
+        std::cout << "On branch " << branch << std::endl;
+        if (!result.staged_deleted.empty() || !result.staged_modified.empty() || !result.staged_new.empty())
+        {
+            std::cout << "\nChanges to be committed:" << std::endl;
+            for (const auto& file : result.staged_new)
+            {
+                std::cout << "\tnew file:\t" << file << std::endl;
+            }
+            for (const auto& file : result.staged_modified)
+            {
+                std::cout << "\tmodified:\t" << file << std::endl;
+            }
+            for (const auto& file : result.staged_deleted)
+            {
+                std::cout << "\tdeleted:\t" << file << std::endl;
+            }
+        }
+        if (!result.unstaged_deleted.empty() || !result.unstaged_modified.empty())
+        {
+            std::cout << "\nChanges not staged for commit:" << std::endl;
+            for (const auto& file : result.unstaged_modified)
+            {
+                std::cout << "\tmodified:\t" << file << std::endl;
+            }
+            for (const auto& file : result.unstaged_deleted)
+            {
+                std::cout << "\tdeleted:\t" << file << std::endl;
+            }
+        }
+        if (!result.untracked.empty())
+        {
+            std::cout << "\nUntracked files:" << std::endl;
+            for (const auto& file : result.untracked)
+            {
+                std::cout << "\t" << file << std::endl;
+            }
+        }
+
+        return 0;
+    }
+    catch (const std::runtime_error& er)
+    {
+        std::cerr << er.what() << std::endl;
+        return 1;
+    }
+}
+
 int main(int argc, char **argv)
 {
     ParsedCommand parsed = CommandParser::parse(argc, argv);
@@ -685,6 +757,10 @@ int main(int argc, char **argv)
     else if (parsed.command_type == CommandType::Switch)
     {
         return handleSwitch(parsed, current_path);
+    }
+    else if (parsed.command_type == CommandType::Status)
+    {
+        return handleStatus(parsed, current_path);
     }
 
     return 0;

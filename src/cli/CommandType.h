@@ -12,5 +12,6 @@ enum class CommandType
     Commit,
     Branch,
     Switch,
+    Status,
     Unknown
 };
