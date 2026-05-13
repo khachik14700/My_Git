@@ -111,7 +111,7 @@ std::string ParsedObject::parseCommitParentId() const
     return "";
 }
 
-std::string ParsedObject::parseCommitAuthor() const
+std::string ParsedObject::parseCommitAuthorName() const
 {
     std::istringstream ss(payload_);
     std::string line;
@@ -119,7 +119,53 @@ std::string ParsedObject::parseCommitAuthor() const
     {
         if (line.find("author ") == 0)
         {
-            return line.substr(7);
+            std::size_t lt = line.find('<', 7);
+            if (lt == std::string::npos)
+                return line.substr(7);
+
+            std::size_t name_end = lt;
+            while (name_end > 7 && line[name_end - 1] == ' ')
+                --name_end;
+
+            return line.substr(7, name_end - 7);
+        }
+    }
+    return "";
+}
+
+std::string ParsedObject::parseCommitAuthorEmail() const
+{
+    std::istringstream ss(payload_);
+    std::string line;
+    while (std::getline(ss, line))
+    {
+        if (line.find("author ") == 0)
+        {
+            std::size_t lt = line.find('<', 7);
+            std::size_t gt = line.find('>', lt);
+            if (lt != std::string::npos && gt != std::string::npos)
+                return line.substr(lt + 1, gt - lt - 1);
+        }
+    }
+    return "";
+}
+
+std::string ParsedObject::parseCommitTimestamp() const
+{
+    std::istringstream ss(payload_);
+    std::string line;
+    while (std::getline(ss, line))
+    {
+        if (line.find("author ") == 0)
+        {
+            std::size_t pos = line.find_last_of(' ');
+            if (pos == std::string::npos)
+                return "";
+            std::size_t prev = line.find_last_of(' ', pos - 1);
+            if (prev == std::string::npos)
+                return "";
+
+            return line.substr(prev + 1);
         }
     }
     return "";

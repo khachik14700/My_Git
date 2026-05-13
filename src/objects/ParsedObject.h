@@ -19,6 +19,8 @@ class ParsedObject
         std::vector<TreeEntry> parseTreePayload() const;
         std::string parseCommitTreeId() const;
         std::string parseCommitParentId() const;
-        std::string parseCommitAuthor() const;
+        std::string parseCommitAuthorName() const;
+        std::string parseCommitAuthorEmail() const;
+        std::string parseCommitTimestamp() const;
         std::string parseCommitMessage() const;
 };

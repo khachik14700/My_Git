@@ -15,6 +15,7 @@
 #include "cli/Editor.h"
 #include "ops/Checkout.h"
 #include "ops/Status.h"
+#include "ops/Log.h"
 #include <iostream>
 #include <filesystem>
 #include <set>
@@ -709,6 +710,39 @@ int handleStatus(const ParsedCommand& parsed, const std::filesystem::path& curre
     }
 }
 
+int handleLog(const ParsedCommand& parsed, const std::filesystem::path& current_path)
+{
+    (void)parsed;
+    if (!Repository::isValid(current_path))
+    {
+        std::cerr << "Error: Current directory is not a valid repository" << std::endl;
+        return 1;
+    }
+
+    try
+    {
+        RepositoryPaths repo_paths(current_path);
+        Refs refs(current_path);
+        std::string branch = refs.readHead();
+        std::string commit_id = refs.readBranch(branch);
+        if (commit_id.empty())
+        {
+            std::cout << "Error: no commits yet" << std::endl;;
+            return 0;
+        }
+
+        std::filesystem::path obj_path = repo_paths.objectsDir();
+        ObjectStore store(obj_path);
+        printLog(commit_id, store);
+        return 0;
+    }
+    catch(const std::runtime_error& er)
+    {
+        std::cerr << er.what() << std::endl;
+        return 1;
+    }
+}
+
 int main(int argc, char **argv)
 {
     ParsedCommand parsed = CommandParser::parse(argc, argv);
@@ -761,6 +795,10 @@ int main(int argc, char **argv)
     else if (parsed.command_type == CommandType::Status)
     {
         return handleStatus(parsed, current_path);
+    }
+    else if (parsed.command_type == CommandType::Log)
+    {
+        return handleLog(parsed, current_path);
     }
 
     return 0;

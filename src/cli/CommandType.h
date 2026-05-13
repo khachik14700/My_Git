@@ -13,5 +13,6 @@ enum class CommandType
     Branch,
     Switch,
     Status,
+    Log,
     Unknown
 };

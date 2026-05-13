@@ -30,7 +30,8 @@ SRCS = \
     src/ops/Add.cpp \
     src/ops/CommitObject.cpp \
     src/ops/Checkout.cpp \
-    src/ops/Status.cpp
+    src/ops/Status.cpp \
+    src/ops/Log.cpp
 
 
 OBJS = $(SRCS:.cpp=.o)
