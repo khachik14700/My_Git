@@ -29,6 +29,7 @@ struct ParsedCommand
     bool from_fs;
     bool cached;
     bool create_branch;
+    bool short_format;
     CatFileMode cat_file_mode;
     BranchMode branch_mode;
     std::string branch_new_name;

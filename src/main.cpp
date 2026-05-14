@@ -641,7 +641,6 @@ int handleSwitch(const ParsedCommand& parsed, const std::filesystem::path& curre
 
 int handleStatus(const ParsedCommand& parsed, const std::filesystem::path& current_path)
 {
-    (void)parsed;
     if (!Repository::isValid(current_path))
     {
         std::cerr << "Error: Current directory is not a valid repository" << std::endl;
@@ -664,40 +663,85 @@ int handleStatus(const ParsedCommand& parsed, const std::filesystem::path& curre
         StatusResult result = getStatus(current_path, store, index, head_commit_id);
 
         std::cout << "On branch " << branch << std::endl;
-        if (!result.staged_deleted.empty() || !result.staged_modified.empty() || !result.staged_new.empty())
+        if (result.staged_deleted.empty() && result.staged_modified.empty() && result.staged_new.empty() && result.unstaged_deleted.empty() && result.unstaged_modified.empty() && result.untracked.empty())
         {
-            std::cout << "\nChanges to be committed:" << std::endl;
-            for (const auto& file : result.staged_new)
+            std::cout << "nothing to commit, working tree clean" << std::endl;
+            return 0;
+        }
+
+        if (parsed.short_format)
+        {
+            if (!result.staged_deleted.empty() || !result.staged_modified.empty() || !result.staged_new.empty())
             {
-                std::cout << "\tnew file:\t" << file << std::endl;
+                for (const auto& file : result.staged_new)
+                {
+                    std::cout << "A  " << file << std::endl;
+                }
+                for (const auto& file : result.staged_modified)
+                {
+                    std::cout << "M  " << file << std::endl;
+                }
+                for (const auto& file : result.staged_deleted)
+                {
+                    std::cout << "D  " << file << std::endl;
+                }
             }
-            for (const auto& file : result.staged_modified)
+            if (!result.unstaged_deleted.empty() || !result.unstaged_modified.empty())
             {
-                std::cout << "\tmodified:\t" << file << std::endl;
+                for (const auto& file : result.unstaged_modified)
+                {
+                    std::cout << " M " << file << std::endl;
+                }
+                for (const auto& file : result.unstaged_deleted)
+                {
+                    std::cout << " D " << file << std::endl;
+                }
             }
-            for (const auto& file : result.staged_deleted)
+            if (!result.untracked.empty())
             {
-                std::cout << "\tdeleted:\t" << file << std::endl;
+                for (const auto& file : result.untracked)
+                {
+                    std::cout << "?? " << file << std::endl;
+                }
             }
         }
-        if (!result.unstaged_deleted.empty() || !result.unstaged_modified.empty())
+        else
         {
-            std::cout << "\nChanges not staged for commit:" << std::endl;
-            for (const auto& file : result.unstaged_modified)
+            if (!result.staged_deleted.empty() || !result.staged_modified.empty() || !result.staged_new.empty())
             {
-                std::cout << "\tmodified:\t" << file << std::endl;
+                std::cout << "\nChanges to be committed:" << std::endl;
+                for (const auto& file : result.staged_new)
+                {
+                    std::cout << "\tnew file:\t" << file << std::endl;
+                }
+                for (const auto& file : result.staged_modified)
+                {
+                    std::cout << "\tmodified:\t" << file << std::endl;
+                }
+                for (const auto& file : result.staged_deleted)
+                {
+                    std::cout << "\tdeleted:\t" << file << std::endl;
+                }
             }
-            for (const auto& file : result.unstaged_deleted)
+            if (!result.unstaged_deleted.empty() || !result.unstaged_modified.empty())
             {
-                std::cout << "\tdeleted:\t" << file << std::endl;
+                std::cout << "\nChanges not staged for commit:" << std::endl;
+                for (const auto& file : result.unstaged_modified)
+                {
+                    std::cout << "\tmodified:\t" << file << std::endl;
+                }
+                for (const auto& file : result.unstaged_deleted)
+                {
+                    std::cout << "\tdeleted:\t" << file << std::endl;
+                }
             }
-        }
-        if (!result.untracked.empty())
-        {
-            std::cout << "\nUntracked files:" << std::endl;
-            for (const auto& file : result.untracked)
+            if (!result.untracked.empty())
             {
-                std::cout << "\t" << file << std::endl;
+                std::cout << "\nUntracked files:" << std::endl;
+                for (const auto& file : result.untracked)
+                {
+                    std::cout << "\t" << file << std::endl;
+                }
             }
         }
 

@@ -9,6 +9,7 @@ ParsedCommand CommandParser::makeError(const std::string& msg)
     result.from_fs = false;
     result.cached = false;
     result.create_branch = false;
+    result.short_format = false;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
@@ -29,6 +30,7 @@ ParsedCommand CommandParser::parseInit(int argc, char** argv)
     result.from_fs = false;
     result.cached = false;
     result.create_branch = false;
+    result.short_format = false;
     result.path = "";
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
@@ -60,6 +62,7 @@ ParsedCommand CommandParser::parseHashObject(int argc, char** argv)
     result.from_fs = false;
     result.cached = false;
     result.create_branch = false;
+    result.short_format = false;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
@@ -133,6 +136,7 @@ ParsedCommand CommandParser::parseCatFile(int argc, char** argv)
     result.from_fs = false;
     result.cached = false;
     result.create_branch = false;
+    result.short_format = false;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
@@ -185,6 +189,7 @@ ParsedCommand CommandParser::parseWriteTree(int argc, char** argv)
     result.from_fs = false;
     result.cached = false;
     result.create_branch = false;
+    result.short_format = false;
     result.path = "";
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
@@ -244,6 +249,7 @@ ParsedCommand CommandParser::parseConfig(int argc, char** argv)
     result.from_fs = false;
     result.cached = false;
     result.create_branch = false;
+    result.short_format = false;
     result.path = "";
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
@@ -286,6 +292,7 @@ ParsedCommand CommandParser::parseAdd(int argc, char** argv)
     result.from_fs = false;
     result.cached = false;
     result.create_branch = false;
+    result.short_format = false;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
@@ -312,6 +319,7 @@ ParsedCommand CommandParser::parseRm(int argc, char** argv)
     result.from_fs = false;
     result.cached = false;
     result.create_branch = false;
+    result.short_format = false;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
@@ -348,6 +356,7 @@ ParsedCommand CommandParser::parseCommit(int argc, char** argv)
     result.from_fs = false;
     result.cached = false;
     result.create_branch = false;
+    result.short_format = false;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
@@ -408,6 +417,7 @@ ParsedCommand CommandParser::parseBranch(int argc, char** argv)
     result.from_fs = false;
     result.cached = false;
     result.create_branch = false;
+    result.short_format = false;
     result.cat_file_mode = CatFileMode::None;
     result.branch_new_name = "";
     result.config_key = "";
@@ -503,6 +513,7 @@ ParsedCommand CommandParser::parseSwitch(int argc, char** argv)
     result.write = false;
     result.from_fs = false;
     result.cached = false;
+    result.short_format = false;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
@@ -556,13 +567,13 @@ ParsedCommand CommandParser::parseSwitch(int argc, char** argv)
 
 ParsedCommand CommandParser::parseStatus(int argc, char** argv)
 {
-    (void)argv;
     ParsedCommand result;
     result.command_type = CommandType::Status;
     result.write = false;
     result.from_fs = false;
     result.cached = false;
     result.create_branch = false;
+    result.short_format = false;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
@@ -576,6 +587,25 @@ ParsedCommand CommandParser::parseStatus(int argc, char** argv)
         result.valid = true;
         return result;
     }
+    else if (argc == 3)
+    {
+        std::string flag(argv[2]);
+
+        if (flag == "-s" || flag == "--short")
+        {
+            result.short_format = true;
+            result.valid = true;
+            return result;
+        }
+        else if (flag[0] == '-')
+        {
+            return makeError("status: unknown flag");
+        }
+        else
+        {
+            return makeError("status: too many arguments");
+        }
+    }
     return makeError("status: too many arguments");
 }
 
@@ -588,6 +618,7 @@ ParsedCommand CommandParser::parseLog(int argc, char** argv)
     result.from_fs = false;
     result.cached = false;
     result.create_branch = false;
+    result.short_format = false;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
