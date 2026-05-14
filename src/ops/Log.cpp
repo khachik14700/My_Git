@@ -1,6 +1,7 @@
 #include "Log.h"
 #include "../objects/ParsedObject.h"
 #include <iostream>
+#include <sstream>
 
 void printLog(const std::string& start_commit_id, ObjectStore& store)
 {
@@ -20,12 +21,17 @@ void printLog(const std::string& start_commit_id, ObjectStore& store)
         std::string email = obj.parseCommitAuthorEmail();
         std::string date = obj.parseCommitTimestamp();
         std::string message = obj.parseCommitMessage();
+        std::istringstream msg_stream(message);
+        std::string msg_line;
 
         std::cout << "commit " << current << std::endl;
         std::cout << "Author: " << author << " <" << email << ">" << std::endl;
         std::cout << "Date:   " << date << std::endl;
         std::cout << std::endl;
-        std::cout << "    " << message << std::endl;
+        while (std::getline(msg_stream, msg_line))
+        {
+            std::cout << "    " << msg_line << std::endl;
+        }
         std::cout << std::endl;
 
         current = parent;

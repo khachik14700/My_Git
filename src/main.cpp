@@ -727,7 +727,7 @@ int handleLog(const ParsedCommand& parsed, const std::filesystem::path& current_
         std::string commit_id = refs.readBranch(branch);
         if (commit_id.empty())
         {
-            std::cout << "Error: no commits yet" << std::endl;;
+            std::cerr << "Error: no commits yet" << std::endl;
             return 0;
         }
 
