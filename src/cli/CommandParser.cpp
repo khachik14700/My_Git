@@ -10,6 +10,7 @@ ParsedCommand CommandParser::makeError(const std::string& msg)
     result.cached = false;
     result.create_branch = false;
     result.short_format = false;
+    result.log_count = 0;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
@@ -17,6 +18,7 @@ ParsedCommand CommandParser::makeError(const std::string& msg)
     result.config_key = "";
     result.config_value = "";
     result.commit_message = "";
+    result.log_branch = "";
     result.error_msg = msg;
     return result;
 }
@@ -31,6 +33,7 @@ ParsedCommand CommandParser::parseInit(int argc, char** argv)
     result.cached = false;
     result.create_branch = false;
     result.short_format = false;
+    result.log_count = 0;
     result.path = "";
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
@@ -39,6 +42,7 @@ ParsedCommand CommandParser::parseInit(int argc, char** argv)
     result.config_key = "";
     result.config_value = "";
     result.commit_message = "";
+    result.log_branch = "";
 
     if (argc > 3)
     {
@@ -63,6 +67,7 @@ ParsedCommand CommandParser::parseHashObject(int argc, char** argv)
     result.cached = false;
     result.create_branch = false;
     result.short_format = false;
+    result.log_count = 0;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
@@ -70,6 +75,7 @@ ParsedCommand CommandParser::parseHashObject(int argc, char** argv)
     result.config_key = "";
     result.config_value = "";
     result.commit_message = "";
+    result.log_branch = "";
 
 
     if (argc == 2)
@@ -137,6 +143,7 @@ ParsedCommand CommandParser::parseCatFile(int argc, char** argv)
     result.cached = false;
     result.create_branch = false;
     result.short_format = false;
+    result.log_count = 0;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
@@ -144,6 +151,7 @@ ParsedCommand CommandParser::parseCatFile(int argc, char** argv)
     result.config_key = "";
     result.config_value = "";
     result.commit_message = "";
+    result.log_branch = "";
 
 
     std::string mode = std::string(argv[2]);
@@ -190,6 +198,7 @@ ParsedCommand CommandParser::parseWriteTree(int argc, char** argv)
     result.cached = false;
     result.create_branch = false;
     result.short_format = false;
+    result.log_count = 0;
     result.path = "";
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
@@ -198,6 +207,8 @@ ParsedCommand CommandParser::parseWriteTree(int argc, char** argv)
     result.config_key = "";
     result.config_value = "";
     result.commit_message = "";
+    result.log_branch = "";
+
     if (argc == 2)
     {
         result.valid = true;
@@ -250,11 +261,13 @@ ParsedCommand CommandParser::parseConfig(int argc, char** argv)
     result.cached = false;
     result.create_branch = false;
     result.short_format = false;
+    result.log_count = 0;
     result.path = "";
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
     result.commit_message = "";
+    result.log_branch = "";
     result.error_msg = "";
 
     if (argc == 3)
@@ -293,12 +306,14 @@ ParsedCommand CommandParser::parseAdd(int argc, char** argv)
     result.cached = false;
     result.create_branch = false;
     result.short_format = false;
+    result.log_count = 0;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
     result.config_key = "";
     result.config_value = "";
     result.commit_message = "";
+    result.log_branch = "";
     result.error_msg = "";
 
     return result;
@@ -320,12 +335,14 @@ ParsedCommand CommandParser::parseRm(int argc, char** argv)
     result.cached = false;
     result.create_branch = false;
     result.short_format = false;
+    result.log_count = 0;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
     result.config_key = "";
     result.config_value = "";
     result.commit_message = "";
+    result.log_branch = "";
     result.error_msg = "";
 
     if (argc == 3)
@@ -357,12 +374,14 @@ ParsedCommand CommandParser::parseCommit(int argc, char** argv)
     result.cached = false;
     result.create_branch = false;
     result.short_format = false;
+    result.log_count = 0;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
     result.config_key = "";
     result.config_value = "";
     result.commit_message = "";
+    result.log_branch = "";
     result.error_msg = "";
 
 
@@ -418,11 +437,13 @@ ParsedCommand CommandParser::parseBranch(int argc, char** argv)
     result.cached = false;
     result.create_branch = false;
     result.short_format = false;
+    result.log_count = 0;
     result.cat_file_mode = CatFileMode::None;
     result.branch_new_name = "";
     result.config_key = "";
     result.config_value = "";
     result.commit_message = "";
+    result.log_branch = "";
     result.error_msg = "";
 
     if (argc == 2)
@@ -514,6 +535,7 @@ ParsedCommand CommandParser::parseSwitch(int argc, char** argv)
     result.from_fs = false;
     result.cached = false;
     result.short_format = false;
+    result.log_count = 0;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
@@ -521,6 +543,7 @@ ParsedCommand CommandParser::parseSwitch(int argc, char** argv)
     result.config_key = "";
     result.config_value = "";
     result.commit_message = "";
+    result.log_branch = "";
     result.error_msg = "";
 
     if (argc == 3)
@@ -574,6 +597,7 @@ ParsedCommand CommandParser::parseStatus(int argc, char** argv)
     result.cached = false;
     result.create_branch = false;
     result.short_format = false;
+    result.log_count = 0;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
@@ -581,6 +605,8 @@ ParsedCommand CommandParser::parseStatus(int argc, char** argv)
     result.config_key = "";
     result.config_value = "";
     result.commit_message = "";
+    result.log_branch = "";
+    result.error_msg = "";
     
     if (argc == 2)
     {
@@ -611,7 +637,6 @@ ParsedCommand CommandParser::parseStatus(int argc, char** argv)
 
 ParsedCommand CommandParser::parseLog(int argc, char** argv)
 {
-    (void)argv;
     ParsedCommand result;
     result.command_type = CommandType::Log;
     result.write = false;
@@ -619,6 +644,7 @@ ParsedCommand CommandParser::parseLog(int argc, char** argv)
     result.cached = false;
     result.create_branch = false;
     result.short_format = false;
+    result.log_count = 0;
     result.cat_file_mode = CatFileMode::None;
     result.branch_mode = BranchMode::None;
     result.branch_new_name = "";
@@ -626,11 +652,58 @@ ParsedCommand CommandParser::parseLog(int argc, char** argv)
     result.config_key = "";
     result.config_value = "";
     result.commit_message = "";
+    result.log_branch = "";
+    result.error_msg = "";
 
     if (argc == 2)
     {
         result.valid = true;
         return result;
+    }
+    else if (argc == 3)
+    {
+        std::string flag(argv[2]);
+        if (flag == "--oneline")
+        {
+            result.short_format = true;
+            result.valid = true;
+            return result;
+        }
+        else if (flag == "-n")
+        {
+            return makeError("log: missing number after -n");
+        }
+        else if (flag[0] == '-')
+        {
+            return makeError("log: unknown flag");
+        }
+        else
+        {
+            result.log_branch = argv[2];
+            result.valid = true;
+            return result;
+        }
+    }
+    else if (argc == 4)
+    {
+        std::string flag(argv[2]);
+        if (flag == "-n")
+        {
+            try
+            {
+                result.log_count = std::stoi(argv[3]);
+                result.valid = true;
+                return result;
+            }
+            catch(const std::exception& e)
+            {
+                return makeError("log: invalid number");
+            }
+        }
+        else
+        {
+            return makeError("log: too many arguments");
+        }
     }
     return makeError("log: too many arguments");
 }

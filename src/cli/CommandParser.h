@@ -30,12 +30,14 @@ struct ParsedCommand
     bool cached;
     bool create_branch;
     bool short_format;
+    int log_count;
     CatFileMode cat_file_mode;
     BranchMode branch_mode;
     std::string branch_new_name;
     std::string config_key;
     std::string config_value;
     std::string commit_message;
+    std::string log_branch;
     std::string error_msg;
 };
 

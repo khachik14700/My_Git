@@ -662,9 +662,9 @@ int handleStatus(const ParsedCommand& parsed, const std::filesystem::path& curre
         ObjectStore store(obj_path);
         StatusResult result = getStatus(current_path, store, index, head_commit_id);
 
-        std::cout << "On branch " << branch << std::endl;
         if (result.staged_deleted.empty() && result.staged_modified.empty() && result.staged_new.empty() && result.unstaged_deleted.empty() && result.unstaged_modified.empty() && result.untracked.empty())
         {
+            std::cout << "On branch " << branch << std::endl;
             std::cout << "nothing to commit, working tree clean" << std::endl;
             return 0;
         }
@@ -707,6 +707,7 @@ int handleStatus(const ParsedCommand& parsed, const std::filesystem::path& curre
         }
         else
         {
+            std::cout << "On branch " << branch << std::endl;
             if (!result.staged_deleted.empty() || !result.staged_modified.empty() || !result.staged_new.empty())
             {
                 std::cout << "\nChanges to be committed:" << std::endl;
@@ -756,7 +757,6 @@ int handleStatus(const ParsedCommand& parsed, const std::filesystem::path& curre
 
 int handleLog(const ParsedCommand& parsed, const std::filesystem::path& current_path)
 {
-    (void)parsed;
     if (!Repository::isValid(current_path))
     {
         std::cerr << "Error: Current directory is not a valid repository" << std::endl;
@@ -767,17 +767,32 @@ int handleLog(const ParsedCommand& parsed, const std::filesystem::path& current_
     {
         RepositoryPaths repo_paths(current_path);
         Refs refs(current_path);
-        std::string branch = refs.readHead();
-        std::string commit_id = refs.readBranch(branch);
-        if (commit_id.empty())
+        std::string commit_id;
+        if (!parsed.log_branch.empty())
         {
-            std::cerr << "Error: no commits yet" << std::endl;
-            return 0;
+            commit_id = refs.readBranch(parsed.log_branch);
+            if (commit_id.empty())
+            {
+                std::cerr << "Error: branch not found" << std::endl;
+                return 1;
+            }
+        }
+        else 
+        {
+            std::string branch = refs.readHead();
+            commit_id = refs.readBranch(branch);
+            if (commit_id.empty())
+            {
+                std::cerr << "Error: no commits yet" << std::endl;
+                return 0;
+            }
         }
 
         std::filesystem::path obj_path = repo_paths.objectsDir();
         ObjectStore store(obj_path);
-        printLog(commit_id, store);
+
+
+        printLog(commit_id, store, parsed.short_format, parsed.log_count);
         return 0;
     }
     catch(const std::runtime_error& er)

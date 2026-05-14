@@ -2,4 +2,4 @@
 #include "../core/ObjectStore.h"
 #include <string>
 
-void printLog(const std::string& start_commit_id, ObjectStore& store);
+void printLog(const std::string& start_commit_id, ObjectStore& store, bool oneline, int max_count);
